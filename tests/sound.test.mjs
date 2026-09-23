@@ -10,6 +10,14 @@ test('the hum follows speed: the bus at ~190 Hz at cruise, her tips two octaves 
   assert.equal(humHz(0, 'ari'), 0);
 });
 
+test('her pitch carries the slip: up when the coils push, down when they brake, and she sings pushing from a stand', () => {
+  assert.ok(Math.abs(humHz(22, 'ari', 40, 40) - 833.3) < 0.1, 'full push at cruise');
+  assert.ok(Math.abs(humHz(22, 'ari', -40, 40) - 633.3) < 0.1, 'full regen brake at cruise');
+  assert.ok(Math.abs(humHz(0, 'ari', 40, 40) - 100) < 0.1, 'pushing from a stand');
+  assert.ok(Math.abs(humHz(-22, 'ari', -40, 40) - 833.3) < 0.1, 'moving backwards, pushing backwards: the same rise');
+  assert.equal(humHz(22, 'bus', 40, 40), humHz(22, 'bus'), 'the bus has no slip');
+});
+
 test('loudness follows the coil force, the jaws add a little, and her tips are about 25 dB below the bus', () => {
   assert.ok(humGain(40, 0, 40, 'bus') > humGain(10, 0, 40, 'bus'));
   assert.ok(humGain(40, 100, 40, 'bus') > humGain(40, 0, 40, 'bus'));

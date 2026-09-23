@@ -13,9 +13,17 @@
 // Driven from the frame loop: update(game) reads tip speed and the coil and jaw forces of the last step.
 // Pure functions first, so node can test the mapping without an AudioContext.
 
-/** Hum frequency in hertz for a tip speed u (m/s). bus: the DK-213 recording's ~190 Hz at 22 m/s; ari: u / pole pitch (3 cm). */
-export function humHz(u, stage) {
-  return stage === 'ari' ? Math.abs(u) / 0.03 : Math.abs(u) * (190 / 22);
+export const SLIP_FULL = 3.0;     // m/s the travelling field runs ahead of (or behind) the tips at the coils' full force: an induction motor on a solid secondary
+
+/**
+ * Hum frequency in hertz. bus: a DC motor and a gearbox, pitch follows speed only (the recording's ~190 Hz at 22 m/s).
+ * ari: an induction motor, so the field's speed is the tips' plus the slip, which is what her effort sounds like:
+ * (|u| + slip) / pole pitch (3 cm), the slip proportional to the coil force, ahead when pushing, behind when braking.
+ */
+export function humHz(u, stage, fCoil = 0, coilRating = 40) {
+  if (stage !== 'ari') return Math.abs(u) * (190 / 22);
+  const along = u >= 0 ? fCoil : -fCoil;                                   // force along the motion: pushing > 0, braking < 0
+  return Math.max(0, Math.abs(u) + SLIP_FULL * along / coilRating) / 0.03;
 }
 
 /** Loudness 0..1 of the hum from the coil force (N) and the coil rating; the jaws add a little grind. */
@@ -77,7 +85,7 @@ function makeVoice(ctx, out, stageName, coilRating, buffers) {
   }
   const hasLaz = !!motorSrc;
   const CHOP_LEVEL = { bus: 0.05, ari: 0.004 };
-  let coilAvg = 0, jawAvg = 0, lastT = ctx.currentTime, jawArmed = true, lastClick = -1;
+  let coilAvg = 0, jawAvg = 0, coilSigned = 0, lastT = ctx.currentTime, jawArmed = true, lastClick = -1;
   const ramp = (p, v, t = 0.03) => { p.cancelScheduledValues(ctx.currentTime); p.setTargetAtTime(v, ctx.currentTime, t); };
   function click() {
     const n = ctx.sampleRate * 0.03, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0);
@@ -91,7 +99,8 @@ function makeVoice(ctx, out, stageName, coilRating, buffers) {
     update(on, u, fCoilNow, fJawNow, variant, level = 1, dop = 1) {
       const now = ctx.currentTime, k = 1 - Math.exp(-(now - lastT) / 0.3); lastT = now;          // the forces flicker; the ear gets a 0.3 s average
       coilAvg += (Math.abs(fCoilNow) - coilAvg) * k; jawAvg += (Math.abs(fJawNow) - jawAvg) * k;
-      const f = humHz(u, stageName), gain = on ? humGain(coilAvg, jawAvg, coilRating, stageName) : 0;
+      coilSigned += (fCoilNow - coilSigned) * k; const g_fCoilSigned = coilSigned;              // signed, for the slip: the pitch rises with a push, falls with a brake
+      const f = humHz(u, stageName, on ? (g_fCoilSigned ?? 0) : 0, coilRating), gain = on ? humGain(coilAvg, jawAvg, coilRating, stageName) : 0;
       const chopper = on ? (0.3 + 0.7 * Math.min(1, coilAvg / coilRating)) * CHOP_LEVEL[stageName] : 0;
       const synth = variant === 'synth' || !hasLaz;
       for (const { o, n } of harmonics) ramp(o.frequency, Math.min(8000, f * n * dop), 0.02);
