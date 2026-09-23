@@ -1,0 +1,47 @@
+# Base level. Physics constants come from data/constants.json (exported from the simulations);
+# everything here is game tuning and level content. A level file names this one under `extends:`.
+name: base
+title: Base
+tuning:
+  step: 0.001              # s, fixed physics step in the game (the parity test runs at the simulations' 0.0001)
+  blendFromDeg: 35         # spread body: wing below this pitch, flare above blendToDeg, smooth between
+  blendToDeg: 70
+  grip_limit: 900          # N along the wire before the tips slip. Set 2026-09-23 (author); becomes 450 with the tip-dynamics port (radio_ocean change roping-tip-dynamics, task 7.2), when the hard brake with the pole pull (833 N) starts to slip. The demos peak at 303, a plain launch 304, the hard brake alone 205
+  hang_limit: 1000         # N of pole load before she loses the wire. Set 2026-09-23: hard brake + pull loads the poles to 856 N; the demos peak at 364
+  body_load_limit_g: 14    # the solved runs peak at 11 to 13 g. Not enforced yet; hard brake + pull is 21.8 g, so about 25 when it is wired in
+  reach_speed: 14.0        # m/s, how fast her poles run toward the wire while grip is held in the air
+  catch_absorb: 8.0        # m/s along the poles that a catch can absorb
+  spin_damping_spread: 0.4 # s, time constant of spin decay while spread in the air
+  arc_seconds: 3.0         # s an arc burns between her and the wire after she touches both wires spread; no flare, no wing meanwhile
+  hoop_hold: 0.12          # s of holding pull-in at the shortest pole length, in the air, before she curls into the hoop
+  hoop_time: 0.2           # s to curl, and to uncurl
+  hoop_cda: 0.02           # m2, drag area of the hoop (the simulations' ball)
+  hoop_auto_open: 1        # 1: with grip held in the hoop she picks the instant to open herself, so that her poles come round onto the wire; 0: she opens at once
+  hoop_look_ahead: 0.9     # s she runs the opening and the reach ahead when picking that instant
+input:
+  throttle_ramp: 0.25      # s from zero to full command
+  throttle_full: 10.0      # m/s2 at full command; the hard modifier doubles it up to the grip limit
+  pitch_rate_deg: 90       # per second
+  pole_speed: 6.0          # m/s
+  slow_motion: 0.4         # further factor while Tab is held
+  time_scale: 0.5          # game time per real time; the physics is untouched, only how fast it is played. [ and ] change it
+  time_scales: [0.15, 0.25, 0.35, 0.5, 0.75, 1.0]
+start:
+  gait: pulled
+  speed: 22.0              # m/s
+bus:
+  speed: 3.0               # m/s
+  count: 1
+  first_gap: 60.0          # m ahead of her at the start
+wind: 0.0                  # m/s against her
+assists: {balance: true, sway: false, slow_motion: true}
+balance:                   # the lifted gait is an inverted pendulum; this is the simulations' rule for holding it
+  kp: 2.2                  # rad of pitch per rad of pole-angle error
+  kd: 1.1                  # rad of pitch per rad/s
+  lead_deg: 65             # the lead angle it holds; W and S move it between lead_min_deg and lead_max_deg
+  lead_min_deg: 50
+  lead_max_deg: 72
+  lead_rate_deg: 15        # per second
+  engage_deg: 35           # it only acts once she is this far ahead of her tips: below, an open wing just drags her back
+  pitch_min_deg: 2
+ghost: null

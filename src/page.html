@@ -1,0 +1,79 @@
+<title>Roping Ari, the Game</title>
+<style>
+  :root { --ground: #F1EDF4; --panel: #FBF9FC; --ink: #2B2335; --muted: #6B6078; --line: #D9D0E2; --violet: #6F5B93; --rust: #B4472A; --copper: #A8672E; --cream: #F6ECDB; --amber: #C9822B;
+          --sky1: #CFC2E4; --sky2: #F7D6BD; --city: #C3B5D6; --road: #D2C8DB; --bus: #DDB84E; --glass: #5D5470; --pole: #2B2335; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ground: #17131D; --panel: #201A29; --ink: #ECE6F2; --muted: #A598B5; --line: #372E44; --violet: #A995D1; --rust: #E5825C; --copper: #D9975A; --cream: #EADCC4; --amber: #E0A04A;
+          --sky1: #231B36; --sky2: #6A3B3C; --city: #2A2139; --road: #110E16; --bus: #A98B3B; --glass: #15111B; --pole: #0B090E; } }
+  :root[data-theme="dark"] { --ground: #17131D; --panel: #201A29; --ink: #ECE6F2; --muted: #A598B5; --line: #372E44; --violet: #A995D1; --rust: #E5825C; --copper: #D9975A; --cream: #EADCC4; --amber: #E0A04A;
+          --sky1: #231B36; --sky2: #6A3B3C; --city: #2A2139; --road: #110E16; --bus: #A98B3B; --glass: #15111B; --pole: #0B090E; }
+  body { background: var(--ground); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .page { max-width: 1120px; margin-inline: auto; padding-inline: 16px; padding-block: 20px 40px; display: grid; gap: 14px; }
+  h1 { font-size: clamp(22px, 4vw, 30px); line-height: 1.1; margin: 0; }
+  p { margin: 0; color: var(--muted); max-width: 72ch; }
+  .stage { position: relative; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  canvas { display: block; width: 100%; height: clamp(240px, 42vw, 470px); outline: none; }
+  canvas:focus-visible { box-shadow: inset 0 0 0 2px var(--violet); }
+  #result { position: absolute; inset: auto 12px 12px 12px; background: var(--panel); border: 1px solid var(--rust); border-radius: 6px; padding: 12px 14px; max-width: 560px; }
+  #result h2 { margin: 0 0 4px; font-size: 18px; } #result p { color: var(--ink); }
+  .below { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 14px; align-items: start; }
+  @media (max-width: 760px) { .below { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; }
+  #readout { font: 13px ui-monospace, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  #readout div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-top: 1px solid var(--line); } #readout div:first-child { border-top: 0; }
+  #readout span:first-child { color: var(--muted); font-family: system-ui, sans-serif; }
+  .keys { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 14px; }
+  .padhead { font-size: 14px; } .padhead span { color: var(--muted); }
+  .axes { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px 14px; margin-block: 10px; font: 12px ui-monospace, monospace; color: var(--muted); }
+  .axes .bar { height: 6px; background: var(--line); border-radius: 3px; position: relative; margin-top: 3px; } .axes .bar i { position: absolute; top: -2px; width: 4px; height: 10px; background: var(--violet); border-radius: 2px; transform: translateX(-2px); }
+  .padmap { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto auto; gap: 6px 12px; align-items: center; font-size: 14px; }
+  .padmap button { font: 13px system-ui, sans-serif; padding: 3px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--ground); color: var(--ink); cursor: pointer; } .padmap button.on { border-color: var(--rust); color: var(--rust); }
+  .padmap code { font: 12px ui-monospace, monospace; color: var(--muted); } .padnote { font-size: 13px; margin-top: 8px; }
+  .moments { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .moments button { font: 13px system-ui, sans-serif; padding: 4px 9px; border: 1px solid var(--line); border-radius: 4px; background: var(--ground); color: var(--ink); cursor: pointer; display: flex; gap: 6px; align-items: baseline; }
+  .moments button b { font-weight: 600; } .moments button span { font: 11px ui-monospace, monospace; color: var(--muted); }
+  .moments button.on { background: var(--rust); border-color: var(--rust); color: var(--panel); } .moments button.on span { color: var(--panel); } .moments button.passed { border-color: var(--violet); }
+  #momentCard { position: absolute; inset: 12px 12px auto auto; max-width: 440px; background: var(--panel); border: 1px solid var(--rust); border-radius: 6px; padding: 8px 12px; font-size: 14px; }
+  .demolinks { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 14px; } .demolinks a { color: var(--violet); } .demolinks a.open { color: var(--muted); text-decoration-style: dotted; }
+  kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 1px 6px; background: var(--ground); white-space: nowrap; }
+</style>
+<div class="page">
+  <header>
+    <h1 id="title">Roping Ari, the Game</h1>
+    <p id="lede">First playable. She rides the two trolleybus wires at 79 km/h on her poles; a trolleybus ahead is on the same wires. Get over it and back onto the wires in front of it. Click the picture first so it gets the keys; press A to watch it done once, hoop and all.</p>
+  </header>
+  <div class="stage"><canvas id="cv" tabindex="0"></canvas><div id="result" hidden><h2 id="resultTitle"></h2><p id="resultText"></p></div><div id="momentCard" hidden></div></div>
+  <section class="card" id="demoBox" hidden><label class="check"><input type="checkbox" id="stopAt"> Stop at key moments</label><div class="moments" id="moments"></div></section>
+  <div class="below">
+    <section class="card"><div id="readout"></div></section>
+    <section class="card"><div class="keys">
+      <span><kbd>←</kbd> <kbd>→</kbd></span><span>brake or speed up her pole tips along the wire (<kbd>Shift</kbd> for hard)</span>
+      <span><kbd>↑</kbd> <kbd>↓</kbd></span><span>pull the poles in, let them out (in the air this is her spin). In the air, keep holding <kbd>↑</kbd> with the poles fully in and she curls into a hoop: 2.3 times the spin, but <kbd>↓</kbd>, <kbd>Space</kbd>, <kbd>F</kbd> and <kbd>G</kbd> first have to open her, 0.2 s. Press <kbd>Space</kbd> in the hoop and she picks the instant to open herself, so her poles come round onto the wire</span>
+      <span><kbd>Space</kbd></span><span>on the wire: let go. In the air: one press and she goes for the wire, poles running out to it, until she has it; press again to call it off</span>
+      <span><kbd>F</kbd></span><span>hold to flare: spread flat against the air. Go between the wires spread and an arc strikes: no flare or wing for 3 s</span>
+      <span><kbd>G</kbd>, <kbd>W</kbd> <kbd>S</kbd></span><span>wing on or off, and its pitch (with the balance assist: the lead angle it holds). The dial at the bottom left shows her pitch to the air: needle is now, open marker is what you set</span>
+      <span><kbd>T</kbd> <kbd>L</kbd></span><span>balance assist off or on; restart already flying in the lifted gait, or hanging in the pulled gait</span>
+      <span>lifted gait</span><span>to enter it: hold <kbd>→</kbd> to about 100 km/h, then hold <kbd>←</kbd> back to 79; she swings forward; press <kbd>G</kbd> as her poles pass 55°. Too early and the wing drags her back, too late and she goes over the top</span>
+      <span><kbd>[</kbd> <kbd>]</kbd></span><span>game speed, slower or faster: it starts at half of real time; the physics is the same at any speed</span>
+      <span><kbd>Tab</kbd></span><span>hold for slow motion on top of that</span>
+      <span><kbd>B</kbd></span><span>trolleybus off or on: free practice on empty wires (back on, it appears 60 m ahead)</span>
+      <span><kbd>R</kbd> <kbd>P</kbd> <kbd>A</kbd></span><span>restart, pause, watch the autopilot: brake, pull, roll over the bus as a hoop, and one press of grip, after which she picks the instant to open</span>
+    </div></section>
+  </div>
+  <section class="card" id="demoList" hidden><div class="padhead"><strong>Demos</strong> <span>candidate badges and lines, each played by a scripted plan (dotted: the plan could not close it)</span></div><div class="demolinks" id="demoLinks"></div></section>
+  <section class="card" id="padCard">
+    <div class="padhead"><strong>Radio or gamepad</strong> <span id="padStatus">not connected. Plug it in over USB (a RadioMaster TX12: choose "USB Joystick" on the radio), then move a stick.</span></div>
+    <div id="padBody" hidden>
+      <div id="padAxes" class="axes"></div>
+      <div id="padButtons" class="padnote" style="font-family: ui-monospace, monospace"></div>
+      <div id="padMap" class="padmap"></div>
+      <p class="padnote">Sticks are the commands themselves, no ramps. To change what a control does press Assign, then move that stick or press that button. "Flip" reverses a direction. Saved in this browser.</p>
+    </div>
+  </section>
+</div>
+<script>
+const DATA = /*DATA*/null;
+(function () {
+/*BUNDLE*/
+boot(DATA, document);
+})();
+</script>

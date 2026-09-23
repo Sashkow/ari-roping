@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roping Ari</title>
+<meta name="description" content="A small creature rides trolleybus wires on two poles and ropes over trolleybuses: a game and the physics sketches behind it.">
+<style>
+  :root { --ground: #F1EDF4; --panel: #FBF9FC; --ink: #2B2335; --muted: #6B6078; --line: #D9D0E2; --violet: #6F5B93; --rust: #B4472A; }
+  @media (prefers-color-scheme: dark) { :root { --ground: #17131D; --panel: #201A29; --ink: #ECE6F2; --muted: #A598B5; --line: #372E44; --violet: #A995D1; --rust: #E5825C; } }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin-inline: auto; padding-inline: 16px; padding-block: 48px 64px; display: grid; gap: 28px; }
+  h1 { font-size: clamp(30px, 6vw, 46px); line-height: 1.05; margin: 0 0 10px; letter-spacing: -0.01em; }
+  .lede { margin: 0; color: var(--muted); max-width: 62ch; }
+  .cards { display: grid; gap: 12px; }
+  .card { display: block; text-decoration: none; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; }
+  .card:hover, .card:focus-visible { border-color: var(--violet); outline: none; }
+  .card.play { border-color: var(--rust); }
+  .card h2 { margin: 0 0 4px; font-size: 19px; } .card.play h2::after { content: "  ▸ play"; color: var(--rust); font-weight: 500; font-size: 15px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  footer { color: var(--muted); font-size: 14px; max-width: 70ch; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Roping Ari</h1>
+    <p class="lede">Ari is a small creature who travels along trolleybus wires on two long poles that grew from her horns. When a trolleybus is in her way on the same wires she goes over it: a swing, a release, a turn in the air, and her poles back onto the wires ahead of it. The move is named after the ninja rope of Worms Armageddon. Here is a game of it and the physics sketches it came from, all in side view and to scale.</p>
+  </header>
+  <div class="cards">
+<!--CARDS-->
+  </div>
+  <footer>Point-mass physics, a 4 kg body on rigid poles, still air; every number on these pages comes from the same small simulations. The game needs a keyboard.</footer>
+</main>
+</body>
+</html>
