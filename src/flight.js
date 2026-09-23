@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Off the wire: a spinning rigid body. State {x, y, vx, vy, phi, L, l}: head position (y above the wires),
 // velocity, pole direction from head to tips (radians, y up), angular momentum, pole length. Spin is L / I(l),
 // so pole length is her spin control. Spread, she flies: lift and drag from the same body model as on the

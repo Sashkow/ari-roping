@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // The street in side view: two wires at y = 0, the road below, one trolleybus on her pair of wires.
 // x runs along the wire, y is height above the wires. Everything that can end a run is here.
 

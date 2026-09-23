@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // How fast can she leave the wire at 45 degrees, with nothing but the game's controls?
 // Differential evolution over piecewise-constant commands (tip acceleration, pole rate, body pitch), played
 // through the game's own physics and limits: the radio's full stick (twice throttle_full, no ramp), pole_speed,

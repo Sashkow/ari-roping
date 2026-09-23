@@ -1,4 +1,5 @@
-"""Assemble the public site (GitHub Pages) in ../ari-roping-site: the built game and the demo pages of
+"""SPDX-License-Identifier: GPL-3.0-or-later
+Assemble the public site (GitHub Pages) in ../ari-roping-site: the built game and the demo pages of
 ../radio_ocean/notes/scenes/ari-roping, each wrapped as a complete HTML document, plus a landing page.
 Built pages only: no sources, no data files. Run: make site   (after make build)
 """
@@ -7,7 +8,7 @@ import pathlib, re, sys
 HERE = pathlib.Path(__file__).parent
 OUT = HERE.parent / "ari-roping-site"
 DEMOS = HERE.parent / "radio_ocean" / "notes" / "scenes" / "ari-roping"
-HEAD = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<style>body{margin:0}[hidden]{display:none!important}</style>\n'
+HEAD = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<link rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">\n<!-- Page, notes and data: CC BY-SA 4.0. Game code: GPL-3.0-or-later. Sources: https://github.com/Sashkow/ari-roping -->\n<style>body{margin:0}[hidden]{display:none!important}</style>\n'
 PAGES = [  # (source, published name, title, one line)
     (HERE / "dist" / "roping-ari.html", "game.html", "Roping Ari, the Game",
      "Ride the two trolleybus wires at 79 km/h on her poles and get over the trolleybus ahead. Keyboard. Press A to watch it done once."),

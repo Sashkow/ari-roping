@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // The page: keyboard in, fixed-step game, canvas and readouts out. `#watch` lets the autopilot play.
 import { makeGame } from './game.js';
 import { makeCommands } from './input.js';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Smoke test of the page wiring without a browser: a stub DOM, real key events, real frames.
 import test from 'node:test';
 import assert from 'node:assert/strict';

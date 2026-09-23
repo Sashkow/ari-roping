@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Demos first (section 12): every demo in data/demos.json replays from its plan to the same tokens at the same
 // times (the page marks the moments from that list), and the page boots in demo mode, stops at the first moment
 // and steps between moments.

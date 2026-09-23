@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // The run itself, with no drawing and no DOM, so node can play it: on the wire or in the air, the player's
 // commands in, her state and what ended the run out.
 import { makePhysics, MODE } from './physics.js';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Ari on the wire: a point mass on rigid massless poles pinned at the tips, which move along the wire.
 // Port of roping_sim.Sim.step (radio_ocean), same force list, same semi-implicit Euler, same pole-force
 // formula. Angles from the downward vertical, body ahead of the tips positive. Pole force: + tension,

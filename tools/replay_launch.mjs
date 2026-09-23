@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { makeGame } from '../src/game.js';

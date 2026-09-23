@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Demos first (task 12.1): run every candidate of src/demos.js through the physics core, searching its small
 // parameter grid for the first combination that closes, and write for each a tab (out/demos/<id>.tab), the
 // numbers, and the tokens the page needs to mark the key moments (data/demos.json, embedded by build.py).

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Candidate badges and lines as demos (tasks 12.2 and 12.3): each is a scripted key driver, like the
 // autopilots, with a few parameters that tools/demo.mjs searches, and a `closes` check on the token
 // stream that says whether the shape happened. Nothing here is a badge: the author picks from the demos.

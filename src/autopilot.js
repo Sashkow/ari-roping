@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Scripted keys for the solved techniques: the watch mode of the page and the playtests in node.
 // Each returns the `keys` object of input.js for the current state of the game.
 import { rad } from './util.js';

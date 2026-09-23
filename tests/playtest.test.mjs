@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // The control scenarios of the spec, played through the real command layer with scripted keys.
 import test from 'node:test';
 import assert from 'node:assert/strict';

@@ -1,4 +1,5 @@
-"""Bundle the game into one self-contained page: dist/roping-ari.html.
+"""SPDX-License-Identifier: GPL-3.0-or-later
+Bundle the game into one self-contained page: dist/roping-ari.html.
 
 Resolves `extends:` in levels/*.yaml, puts the physics constants of data/constants.json under every level,
 embeds the ghosts that levels ask for, and concatenates the ES modules of src/ in dependency order with

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // The token stream: what she did, as transitions of the run's state, each with its time and numbers.
 // Pure: fed the game after every step, returns the tokens of that step. Lines (design decision 15) are
 // matched on this stream, the tab's `#` lines are printed from it, and a demo's key moments are it.

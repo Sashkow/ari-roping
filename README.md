@@ -73,3 +73,20 @@ Check list for the real radio (the axis numbers above are confirmed on the autho
 - [ ] a flick right on the left stick lets go exactly once; holding it does not repeat
 - [ ] it feels immediate (if there is a lag, note the browser and the radio's USB mode)
 - [ ] if switches are wanted instead: they only arrive if the model on the radio mixes them to a channel; channels 1 to 8 come as axes, higher ones as buttons
+
+## Licence
+
+Two licences, chosen 2026-09-23 so that independent forks are welcome and closed-source
+forks are not:
+
+- **Code** (`src/`, `tools/`, `tests/`, `build.py`, `make_site.py`, `package.json`):
+  **GPL-3.0-or-later**, text in `LICENSE`. Each source file carries its SPDX line.
+- **Everything else** (`levels/`, `data/`, `notes/`, `openspec/`, `site_index.html`,
+  this README, the built pages, and the character Ari as she appears here):
+  **CC BY-SA 4.0**, text in `LICENSE-CC-BY-SA-4.0`.
+
+Copyright (c) 2026 Oleksandr Lykhenko (Sashkow).
+
+**Attribution for forks and derived work.** Credit "Roping Ari by Oleksandr Lykhenko",
+name the character Ari as his, link to <https://github.com/Sashkow/ari-roping>, keep
+the same licences on what you make from it, and say what you changed.

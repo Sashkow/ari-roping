@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // The player's five controls as commands, independent of the device. Digital keys drive analog commands
 // through ramps, so a keyboard can give a gentle brake or a hard one. A gamepad or the autopilot fills the
 // same `keys` object. keys: left right up down grip flare wing pitchUp pitchDown hard slow (booleans).

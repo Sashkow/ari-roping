@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // The JavaScript physics must be the simulations' physics: replay the controls the Python runs actually
 // applied and compare trajectories on every attached segment. Tolerance from the spec: 5 cm, 1 degree.
 import test from 'node:test';

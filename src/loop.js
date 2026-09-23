@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Fixed-step clock: the physics always advances in whole steps of dt, however often frames arrive, so the
 // same inputs give the same flight on every machine. Inputs are read per step, by simulation time.
 

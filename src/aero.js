@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Lift and drag of her spread body. Port of roping_gaits.Gaits.wing (radio_ocean): the Polhamus
 // suction analogy for a very stubby wing, potential plus vortex lift, drag = cd0 + CL tan(alpha).
 import { smooth } from './util.js';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // A radio transmitter or any gamepad as the controller. A RadioMaster TX12 in EdgeTX "USB Joystick" mode is a plain
 // HID joystick: its first channels arrive as axes, and a switch arrives as an axis or as a button depending on how the
 // model is set up on the radio, so every function can be mapped to either. Sticks are analog: no ramps, the stick is

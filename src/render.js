@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Side view, to scale, on a canvas. Drawing code descends from the Roping Ari animation pages
 // (radio_ocean/notes/scenes/ari-roping): dusk sky, far skyline, road, supports, the two wires, the
 // trolleybus with its poles on them, and Ari with her poles, body form, flare streaks.
