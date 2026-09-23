@@ -68,7 +68,9 @@ export function makePhysics(physics, tipsOverride = {}) {
     const fShoe = -MU * Math.abs(tPrev) * sgn;
     const fCmd = typeof cmd === 'object' ? cmd.accel * denom - t0 * sin - fShoe : cmd;
     const coil = COIL * (FADE > 0 ? Math.min(1, Math.abs(u) / FADE) : 1);
-    const fApplied = Math.max(-(coil + GRIP), Math.min(coil, fCmd));
+    // the jaws are friction: they only oppose the tips' motion, whichever way along the wire that is; the coils push either way
+    const [lo, hi] = u >= 0 ? [-(coil + GRIP), coil] : [-coil, coil + GRIP];
+    const fApplied = Math.max(lo, Math.min(hi, fCmd));
     const fCoil = Math.max(-coil, Math.min(coil, fApplied));
     return { aP: (fApplied + fShoe + t0 * sin) / denom, fCmd, fApplied, fCoil, fJaw: fApplied - fCoil, fShoe, slip: fCmd - fApplied };
   }

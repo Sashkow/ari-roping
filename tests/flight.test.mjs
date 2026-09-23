@@ -99,3 +99,10 @@ test('fixed step: 30 and 60 frames per second give the identical trajectory', ()
   assert.deepEqual(again(30), again(60));
   if (a.steps === b.steps) assert.deepEqual(a.st, b.st);
 });
+
+test('the caps follow the direction of motion: moving backwards, the jaws hold her the other way', () => {
+  const t0 = P.attached(rad(-30), -1.0, -20, 0, 2.4, 0, MODE.narrow, 0).tension, sin = Math.sin(rad(-30));
+  const push = P.tipForces(-20, t0, sin, 5000, t0), hold = P.tipForces(-20, t0, sin, -5000, t0);
+  assert.ok(Math.abs(push.fApplied - (P.tips.coil + P.tips.grip)) < 1e-9, 'against the motion (+x when moving -x): coils plus jaws');
+  assert.ok(Math.abs(hold.fApplied + P.tips.coil) < 1e-9, 'along the motion: the coils only');
+});
