@@ -46,7 +46,7 @@ export function makeSound(ctx, opts = {}) {
   }
   const hasLaz = !!motorSrc;
   // ---- the jaws: a short click when they close
-  let jawWas = 0;
+  let jawWas = 0, jawArmed = true, lastClick = -1;   // a click only when the jaws go from nearly nothing to a firm hold, and not more than a few times a second
   function click() {
     const n = ctx.sampleRate * 0.03, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0);
     for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 2;
@@ -70,7 +70,10 @@ export function makeSound(ctx, opts = {}) {
         ramp(motorSrc.playbackRate, Math.max(0.05, f / (190 / 22 * 22)), 0.02);
         ramp(motorGain.gain, synth ? 0 : gain * 1.5); ramp(chopGain2.gain, synth ? 0 : chopper * 1.2);
       }
-      if (Math.abs(fJaw) > 5 && jawWas <= 5) click(); jawWas = Math.abs(fJaw);
+      const j = Math.abs(fJaw);
+      if (j < 15) jawArmed = true;
+      if (jawArmed && j > 60 && ctx.currentTime - lastClick > 0.4) { click(); jawArmed = false; lastClick = ctx.currentTime; }
+      jawWas = j;
       ramp(master.gain, 0.8, 0.05);
     },
     mute() { ramp(master.gain, 0, 0.05); },
