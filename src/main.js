@@ -8,6 +8,7 @@ import { autopilots } from './autopilot.js';
 import { deg } from './util.js';
 import { readPad, movedControl, snapshot, defaultMappingFor } from './gamepad.js';
 import { demos, freshState } from './demos.js';
+import { makeSound } from './sound.js';
 
 const KEYMAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', ' ': 'grip', f: 'flare', F: 'flare', g: 'wing', G: 'wing',
                  w: 'pitchUp', W: 'pitchUp', s: 'pitchDown', S: 'pitchDown', Shift: 'hard', Tab: 'slow' };
@@ -19,6 +20,21 @@ export function boot(data, doc) {
   // ---- a demo (#demo=<id>): a candidate of demos.js played by its plan, with its key moments numbered (tasks 12.1, 11.3)
   const demoId = (/[#&]demo=(\w+)/.exec(location.hash) || [])[1], demo = demoId && data.demos && data.demos[demoId] && demos[demoId] ? { ...data.demos[demoId], plan: demos[demoId].plan } : null;
   let demoState = freshState(), stopAtMoments = false, moment = -1, seeking = false;
+  // ---- the sound of her tips: off until the player picks a variant (browsers want a click before audio)
+  let sound = null, soundCtx = null;
+  const soundWant = (/[#&]sound=(synth|laz)/.exec(location.hash) || [])[1], stageWant = (/[#&]stage=(bus|ari)/.exec(location.hash) || [, 'ari'])[1];
+  async function soundBuffers() {
+    if (!data.sounds) return null;
+    const dec = async (b64) => soundCtx.decodeAudioData(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer);
+    return { motor: await dec(data.sounds.motor), chopper: await dec(data.sounds.chopper) };
+  }
+  async function setSound(variant, stage) {
+    if (variant === 'off') { if (sound) sound.mute(); sound = null; return; }
+    if (!soundCtx) soundCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (soundCtx.state === 'suspended') await soundCtx.resume();
+    if (!sound) sound = makeSound(soundCtx, { variant, stage, buffers: await soundBuffers(), coilRating: (data.physics.tips || {}).coil ? data.physics.tips.coil.thrust : 40 });
+    sound.set(stage, variant);
+  }
   const moments = demo ? demo.tokens.filter((k) => k.name !== 'BACK') : [];
   const label = (k) => `${k.name}${k.phase ? '.' + k.phase : ''}${k.kind ? '.' + k.kind : ''}`;
   const numbersOf = (k) => Object.entries(k).filter(([a]) => !['t', 'name', 'note', 'phase', 'kind', 'x', 'y'].includes(a)).map(([a, b]) => `${a} ${b}`).join(', ');
@@ -112,6 +128,7 @@ export function boot(data, doc) {
         const next = moments.findIndex((k) => k.t > game.t - dt - 1e-9 && k.t <= game.t + 1e-9); if (next >= 0) { moment = next; if (stopAtMoments) paused = true; drawMoments(); } }
     });
     renderer.draw(game, game.shown || cmd, level.tuning, demo ? marks() : []); readout();
+    if (sound) { if (paused || game.over) sound.mute(); else sound.update(game); }
     if (game.over && $('result').hidden) {
       $('result').hidden = false; $('resultTitle').textContent = game.won ? 'Past the bus' : 'Run over';
       $('resultText').textContent = `${game.over} ${game.won ? `Speed kept: ${((100 * game.st.u) / game.startSpeed).toFixed(0)} %. Apex ${game.apex.toFixed(1)} m above the wires, ${Math.abs(game.turns).toFixed(1)} turns.` : ''} Press R to go again.`;
@@ -136,6 +153,13 @@ export function boot(data, doc) {
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderer.readTokens());
   if (demo) { $('title').textContent = `Demo: ${demo.title}`; $('lede').textContent = `${demo.kind === 'line' ? 'A line' : 'A candidate badge'}: ${demo.what}. ${demo.closes ? 'It closes' : 'It does not close'}${Object.keys(demo.numbers).length ? ' (' + Object.entries(demo.numbers).map(([k, v]) => `${k} ${v}`).join(', ') + ')' : ''}. ${demo.note} Playback stops at each numbered moment; P plays on, , and . step between moments, R restarts.`;
     $('demoBox').hidden = false; $('stopAt').addEventListener('change', (e) => { stopAtMoments = e.target.checked; }); }
+  // the sound controls live on every page, demo or not
+  { const sel = $('soundVariant'), st = $('soundStage');
+    const lazOpt = sel.querySelector && sel.querySelector('option[value=laz]'); if (!data.sounds && lazOpt) lazOpt.disabled = true;
+    if (soundWant && (soundWant !== 'laz' || data.sounds)) sel.value = soundWant; st.value = stageWant;
+    const apply = () => setSound(sel.value, st.value);
+    sel.addEventListener('change', apply); st.addEventListener('change', apply);
+    if (sel.value !== 'off') doc.addEventListener('pointerdown', apply, { once: true }); }
   if (data.demos && Object.keys(data.demos).length) { $('demoList').hidden = false;
     $('demoLinks').replaceChildren(...Object.entries(data.demos).map(([id, d]) => { const a = doc.createElement('a'); a.href = `#demo=${id}`; a.textContent = `${d.title}`; a.title = d.what; a.className = d.closes ? 'closes' : 'open'; return a; }));
     window.addEventListener('hashchange', () => location.reload()); }                     // a demo link changes the hash; the page is rebuilt from it

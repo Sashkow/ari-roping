@@ -68,12 +68,20 @@ def main():
     demos = json.loads(demos_file.read_text()) if demos_file.exists() else {}
     data = dict(physics=constants["physics"], constants_sha256=constants["source_sha256"], levels=levels, ghosts=ghosts, demos=demos)
     shell = (SRC / "page.html").read_text()
-    page = shell.replace("/*DATA*/null", json.dumps(data, separators=(",", ":")), 1).replace("/*BUNDLE*/", bundle(), 1)
+    code = bundle()
     DIST.mkdir(exist_ok=True)
     out = DIST / "roping-ari.html"
-    out.write_text(page)
+    out.write_text(shell.replace("/*DATA*/null", json.dumps(data, separators=(",", ":")), 1).replace("/*BUNDLE*/", code, 1))
     size = out.stat().st_size
     print(f"{out.relative_to(HERE)}: {size // 1024} KB, {len(levels)} level(s), {len(ghosts)} ghost(s), {len(demos)} demo(s)")
+    # a local-only build with the trolleybus recordings embedded (local/sounds/motor.wav, chopper.wav): not published, the recordings' authors are unknown
+    sounds = HERE / "local" / "sounds"
+    if (sounds / "motor.wav").exists() and (sounds / "chopper.wav").exists():
+        import base64
+        data["sounds"] = {k: base64.b64encode((sounds / f"{k}.wav").read_bytes()).decode() for k in ("motor", "chopper")}
+        out2 = DIST / "roping-ari-laz.html"
+        out2.write_text(shell.replace("/*DATA*/null", json.dumps(data, separators=(",", ":")), 1).replace("/*BUNDLE*/", code, 1))
+        print(f"{out2.relative_to(HERE)}: {out2.stat().st_size // 1024} KB, with the recordings (local only)")
     if size > BUDGET:
         sys.exit(f"over the {BUDGET // 1000} KB budget")
 

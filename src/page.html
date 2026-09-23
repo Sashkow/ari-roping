@@ -28,6 +28,7 @@
   .padmap { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto auto; gap: 6px 12px; align-items: center; font-size: 14px; }
   .padmap button { font: 13px system-ui, sans-serif; padding: 3px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--ground); color: var(--ink); cursor: pointer; } .padmap button.on { border-color: var(--rust); color: var(--rust); }
   .padmap code { font: 12px ui-monospace, monospace; color: var(--muted); } .padnote { font-size: 13px; margin-top: 8px; }
+  .soundctl { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 8px; font-size: 14px; } .soundctl select { font: 14px system-ui, sans-serif; margin-left: 4px; }
   .moments { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .moments button { font: 13px system-ui, sans-serif; padding: 4px 9px; border: 1px solid var(--line); border-radius: 4px; background: var(--ground); color: var(--ink); cursor: pointer; display: flex; gap: 6px; align-items: baseline; }
   .moments button b { font-weight: 600; } .moments button span { font: 11px ui-monospace, monospace; color: var(--muted); }
@@ -43,6 +44,9 @@
   </header>
   <div class="stage"><canvas id="cv" tabindex="0"></canvas><div id="result" hidden><h2 id="resultTitle"></h2><p id="resultText"></p></div><div id="momentCard" hidden></div></div>
   <section class="card" id="demoBox" hidden><label class="check"><input type="checkbox" id="stopAt"> Stop at key moments</label><div class="moments" id="moments"></div></section>
+  <section class="card" id="soundBox"><div class="padhead"><strong>The sound of her tips</strong> <span>a traction-motor hum whose pitch follows her speed, and a chopper singing one note; the jaws click when they close. Pick a variant, then click the picture.</span></div>
+    <div class="soundctl"><label>Variant <select id="soundVariant"><option value="off">off</option><option value="synth">synthesised (ZiU motor + Ganz chopper, from their numbers)</option><option value="laz">recordings (local build only)</option></select></label>
+    <label>Stage <select id="soundStage"><option value="ari">Ari's tips: two octaves up, 25 dB down</option><option value="bus">the trolleybus as it is</option></select></label></div></section>
   <div class="below">
     <section class="card"><div id="readout"></div></section>
     <section class="card"><div class="keys">
