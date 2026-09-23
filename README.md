@@ -14,6 +14,14 @@ The plan, design and task list are the OpenSpec change `openspec/changes/roping-
 Public site: https://sashkow.github.io/roping-ari/ (repository Sashkow/roping-ari, pushed from
 `../ari-roping-site`; after `make site`, commit and push there).
 
+## The tips
+
+Since 2026-09-23 her tips are the poles' 3 kg riding the wire, driven by coils (40 N, induction), the
+hands' friction (jaws, up to 450 N backward) and a sliding shoe (μ 0.2 times the pole load); the throttle
+asks for an acceleration and gets what those can give. `src/physics.js` `tipForces` is the port of
+`roping_sim.py`; the tip values come from `data/constants.json` `physics.tips`. The parity tests replay
+the simulations' applied forces and must land on the same trajectory.
+
 ## Kept builds
 
 `kept/` holds built pages that stay playable on the site after the model moves on:

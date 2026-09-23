@@ -54,9 +54,8 @@ function play(x, trace) {
     const spread = c.pitch > 0.03 * (Math.PI / 2) && t >= arcUntil;
     const y0 = -l0 * Math.cos(st.th), th0 = st.th;
     const mode = spread ? MODE.body : MODE.narrow, lvl = spread ? c.pitch : 0;
-    const lim = P.limitTipAccel(st.th, st.om, st.u, c.accel, l, dl, mode, lvl, GRIP);
-    const aP = st.u <= 0.5 && lim.aP < 0 ? 0 : lim.aP;
-    const out = P.stepAttached(st, { aP, l, dl, mode, level: lvl }, DT);
+    const wish = st.u <= 0.5 && c.accel < 0 ? 0 : c.accel;
+    const out = P.stepTips(st, { cmd: { accel: wish }, l, dl, mode, level: lvl }, DT);
     if (Math.abs(out.tension) > HANG || Math.abs(out.tension) > LOAD_G * P.M * P.G) break;   // she loses the wire, or it is more than her body takes
     if (spread && y0 * -l * Math.cos(st.th) < 0) arcUntil = t + T.arc_seconds;
     shoes += level.bus.speed * DT;

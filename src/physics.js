@@ -1,14 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Ari on the wire: a point mass on rigid massless poles pinned at the tips, which move along the wire.
-// Port of roping_sim.Sim.step (radio_ocean), same force list, same semi-implicit Euler, same pole-force
-// formula. Angles from the downward vertical, body ahead of the tips positive. Pole force: + tension,
+// Ari on the wire: a point mass on rigid poles whose tips are a second mass (the poles') riding the wire.
+// Port of roping_sim.Sim.step and Sim.tip_forces (radio_ocean, change roping-tip-dynamics): same force
+// list, same semi-implicit Euler, same pole-force formula, same tip equation. Along the wire the tips
+// are driven by the coils (bounded, symmetric, fading near standstill), the jaws (backward only, up to
+// the grip) and the shoe (mu times the previous step's pole force, against the tips' motion):
+//   aP = (fApplied + fShoe + T0 sin th) / (mTip + M sin^2 th),  T0 the pole force at aP = 0.
+// A control may ask for a force in newtons, or for an acceleration ({accel: a}), which is resolved to
+// the force that would give it and then clamped, so the tips slip when asked for more than they have.
+// Angles from the downward vertical, body ahead of the tips positive. Pole force: + tension,
 // - compression. Constants come from data/constants.json, never from this file.
 import { makeWing, makeBody } from './aero.js';
 
 export const MODE = { narrow: 0, wing: 1, flare: 2, body: 3 };   // 0-2 are the simulations' modes; body is the player's spread body at a pitch
 
-export function makePhysics(physics) {
+export function makePhysics(physics, tipsOverride = {}) {
   const G = physics.sim.g, M = physics.body.mass, W = M * G;
+  const TIPS = { ...(physics.tips || {}), ...tipsOverride, coil: { ...((physics.tips || {}).coil || {}), ...(tipsOverride.coil || {}) } };
+  const M_TIP = TIPS.mass ?? physics.body.poles_mass, COIL = TIPS.coil.thrust ?? Infinity, FADE = TIPS.coil.fade_speed ?? 0;
+  const GRIP = TIPS.grip ?? Infinity, MU = TIPS.shoe_mu ?? 0, SMOOTH_U = TIPS.sign_smooth ?? 0.05;
   const RHO = physics.air.density, WIND = physics.air.headwind;
   const POLE_K = physics.poles.count * 0.5 * RHO * physics.poles.cd * physics.poles.diameter;  // N per m of pole per (m/s)^2
   const NARROW_CDA = physics.gaits.narrow_cda, FLARE_K = physics.flare_k;
@@ -49,17 +58,33 @@ export function makePhysics(physics) {
   }
 
   /**
-   * The tip acceleration the wire can actually deliver. The force along the wire that the tips need is
-   * F = -T sin(th), and T itself depends on the acceleration: F(a) = -T0 sin(th) + M a sin(th)^2, with T0
-   * the pole force at a = 0. Beyond the grip limit the tips slip and deliver only what grip allows.
+   * The three along-wire forces on the tips for one step and the acceleration they give (roping_sim.Sim.tip_forces).
+   * u tip speed, t0 the pole force at zero tip acceleration, sin = sin(th), cmd a force in N or {accel: a}, tPrev
+   * the previous step's pole force (the shoe uses it: one step of lag breaks the loop).
    */
-  function limitTipAccel(th, om, u, aCmd, l, dl, mode, level, gripLimit) {
-    const t0 = attached(th, om, u, 0, l, dl, mode, level).tension, sin = Math.sin(th), k = M * sin * sin;
-    if (!(gripLimit < Infinity) || k < 1e-9) return { aP: aCmd, saturated: false };
-    const lo = (-gripLimit + t0 * sin) / k, hi = (gripLimit + t0 * sin) / k;
-    const aP = Math.min(Math.max(aCmd, lo), hi);
-    return { aP, saturated: aP !== aCmd };
+  function tipForces(u, t0, sin, cmd, tPrev) {
+    const denom = M_TIP + M * sin * sin;
+    const sgn = SMOOTH_U > 0 ? Math.max(-1, Math.min(1, u / SMOOTH_U)) : Math.sign(u);
+    const fShoe = -MU * Math.abs(tPrev) * sgn;
+    const fCmd = typeof cmd === 'object' ? cmd.accel * denom - t0 * sin - fShoe : cmd;
+    const coil = COIL * (FADE > 0 ? Math.min(1, Math.abs(u) / FADE) : 1);
+    const fApplied = Math.max(-(coil + GRIP), Math.min(coil, fCmd));
+    const fCoil = Math.max(-coil, Math.min(coil, fApplied));
+    return { aP: (fApplied + fShoe + t0 * sin) / denom, fCmd, fApplied, fCoil, fJaw: fApplied - fCoil, fShoe, slip: fCmd - fApplied };
   }
 
-  return { attached, stepAttached, limitTipAccel, G, M, W, RHO, WIND, POLE_K, wing, body };
+  /**
+   * One step on the wire with force-driven tips, in place. state: {th, om, u, x, tPrev}; ctl: {cmd, l, dl, mode, level}.
+   * Returns the force record of the step with the tip forces and aP in it.
+   */
+  function stepTips(state, ctl, dt) {
+    const sin = Math.sin(state.th);
+    const t0 = attached(state.th, state.om, state.u, 0, ctl.l, ctl.dl, ctl.mode, ctl.level).tension;
+    const tf = tipForces(state.u, t0, sin, ctl.cmd, state.tPrev || 0);
+    const out = stepAttached(state, { aP: tf.aP, l: ctl.l, dl: ctl.dl, mode: ctl.mode, level: ctl.level }, dt);
+    state.tPrev = out.tension;
+    return { ...out, ...tf };
+  }
+
+  return { attached, stepAttached, tipForces, stepTips, G, M, W, RHO, WIND, POLE_K, wing, body, tips: { mass: M_TIP, coil: COIL, fade: FADE, grip: GRIP, mu: MU } };
 }

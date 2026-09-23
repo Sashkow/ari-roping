@@ -7,7 +7,7 @@ import { makeWorld } from './world.js';
 import { rad, clamp } from './util.js';
 
 export function makeGame(physics, level, opts = {}) {
-  const T = level.tuning, P = makePhysics({ ...physics, tuning: T }), F = makeFlight(P, physics, T), world = makeWorld(physics, level);
+  const T = level.tuning, P = makePhysics({ ...physics, tuning: T }, level.tips || {}), F = makeFlight(P, physics, T), world = makeWorld(physics, level);
   const L_MIN = physics.poles.short, L_MAX = physics.poles.long, LB = physics.body.length;
 
   function steadyAngle(u, l) {                       // where she hangs at a steady speed, narrow
@@ -18,7 +18,7 @@ export function makeGame(physics, level, opts = {}) {
 
   const g = {
     t: 0, mode: 'wire', over: null, won: false, world, P, F,
-    st: { th: steadyAngle(level.start.speed, L_MAX), om: 0, u: level.start.speed, x: 0 }, l: L_MAX, dl: 0,
+    st: { th: steadyAngle(level.start.speed, L_MAX), om: 0, u: level.start.speed, x: 0, tPrev: 0 }, l: L_MAX, dl: 0,
     fl: null, out: null, aP: 0, saturated: false, hardCatch: false, catches: 0, releases: 0,
     startSpeed: level.start.speed, airTime: 0, apex: 0, turns: 0, passedAt: null,
     arcUntil: -1, arcs: 0, events: [], reaching: false, balance: null, assistOn: !!(level.assists && level.assists.balance),
@@ -41,9 +41,10 @@ export function makeGame(physics, level, opts = {}) {
       g.l = clamp(g.l + cmd.poleRate * dt, L_MIN, L_MAX); g.dl = (g.l - l0) / dt;
       cmd = balanced(cmd); g.shown = cmd;                  // what her body actually does, for the drawing
       const mode = cmd.spread ? MODE.body : MODE.narrow, level = cmd.spread ? cmd.pitch : 0;
-      const lim = P.limitTipAccel(g.st.th, g.st.om, g.st.u, cmd.accel, g.l, g.dl, mode, level, T.grip_limit);
-      g.aP = g.st.u <= 0.5 && lim.aP < 0 ? 0 : lim.aP; g.saturated = lim.saturated;
-      g.out = P.stepAttached(g.st, { aP: g.aP, l: g.l, dl: g.dl, mode, level }, dt);
+      // the throttle is a wished tip acceleration; the tips give what the coils, the jaws and the shoe can (physics.js)
+      const wish = g.st.u <= 0.5 && cmd.accel < 0 ? 0 : cmd.accel;
+      g.out = P.stepTips(g.st, { cmd: { accel: wish }, l: g.l, dl: g.dl, mode, level }, dt);
+      g.aP = g.out.aP; g.saturated = Math.abs(g.out.slip) > 1;
       const geo = world.geom();
       if (world.bus.on && g.st.x > geo.shoes - 0.12 && g.st.x < geo.shoes + 0.6 && g.st.u > world.bus.v) g.over = "Her tips ran into the trolleybus's collector shoes.";
       if (Math.abs(g.out.tension) > T.hang_limit) cmd = { ...cmd, gripPressed: true };
@@ -55,7 +56,7 @@ export function makeGame(physics, level, opts = {}) {
       const got = F.step(g.fl, { grip: g.reaching, poleRate: g.reaching ? 0 : cmd.poleRate, spread: cmd.spread && !g.reaching, pitch: cmd.pitch }, dt);
       cmd = { ...cmd, spread: g.fl.spreadNow }; g.shown = cmd;                       // curled, she has to open before she can spread
       g.airTime += dt; g.apex = Math.max(g.apex, g.fl.y); g.turns += (g.fl.phi - phiBefore) / (2 * Math.PI);
-      if (got) { g.reaching = false; g.st = { th: got.th, om: got.om, u: got.u, x: got.x }; g.l = got.l; g.dl = 0; g.mode = 'wire'; g.catches++; g.hardCatch = got.hard; g.catchAlong = got.along; g.out = null; g.fl = null; }
+      if (got) { g.reaching = false; g.st = { th: got.th, om: got.om, u: got.u, x: got.x, tPrev: 0 }; g.l = got.l; g.dl = 0; g.mode = 'wire'; g.catches++; g.hardCatch = got.hard; g.catchAlong = got.along; g.out = null; g.fl = null; }
     }
     const [hx, hy] = g.head(), tail = g.tailAngle(cmd);
     // spread wide between two wires 520 mm apart she touches both: 600 V strikes an arc between her and the wire.

@@ -26,11 +26,12 @@ for (const file of readdirSync(new URL('parity/', DATA)).filter((f) => f.endsWit
     const P = makePhysics(run.physics);
     let worstPos = 0, worstAng = 0;
     run.segments.forEach((seg, k) => {
-      const c = seg.controls, st = { ...seg.start };
+      const c = seg.controls, st = { ...seg.start, tPrev: 0 };
       for (let i = 0; i < seg.steps; i++) {
         const j = Math.floor(i / c.every), f = (i % c.every) / c.every;
-        const ctl = { aP: lerp(c.a_p, j, f), l: lerp(c.l, j, f), dl: lerp(c.dl, j, f), mode: c.mode[j], level: lerp(c.level, j, f) };
-        P.stepAttached(st, ctl, run.dt);
+        // the control is the force the Python applied to the tips; the tip equation must give back the same acceleration
+        const ctl = { cmd: lerp(c.f_applied, j, f), l: lerp(c.l, j, f), dl: lerp(c.dl, j, f), mode: c.mode[j], level: lerp(c.level, j, f) };
+        P.stepTips(st, ctl, run.dt);
         if ((i + 1) % seg.ref.every === 0) {
           const r = (i + 1) / seg.ref.every - 1;
           const l = seg.ref.l[r];
@@ -42,8 +43,11 @@ for (const file of readdirSync(new URL('parity/', DATA)).filter((f) => f.endsWit
           worstAng = Math.max(worstAng, Math.abs(d));
         }
       }
-      assert.ok(worstPos < 0.05, `segment ${k}: head position off by ${worstPos.toFixed(3)} m`);
-      assert.ok(worstAng < 1.0, `segment ${k}: pole angle off by ${worstAng.toFixed(2)} deg`);
+      // a segment that flies on the wing replays the balance open loop (recorded pitch, no feedback) through an inverted
+      // pendulum, so its error grows exponentially with time; 10 cm is allowed there, 5 cm elsewhere
+      const tol = seg.controls.mode.includes(1) ? 0.10 : 0.05;
+      assert.ok(worstPos < tol, `segment ${k}: head position off by ${worstPos.toFixed(3)} m`);
+      assert.ok(worstAng < (tol > 0.05 ? 2.5 : 1.0), `segment ${k}: pole angle off by ${worstAng.toFixed(2)} deg`);
     });
     console.log(`    ${run.name}: worst head position error ${(worstPos * 100).toFixed(2)} cm, worst pole angle error ${worstAng.toFixed(3)} deg`);
   });

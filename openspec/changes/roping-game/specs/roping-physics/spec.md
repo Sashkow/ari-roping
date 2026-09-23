@@ -26,12 +26,20 @@ The game SHALL model three body states: narrow (small drag, no lift), spread at 
 - **WHEN** she is ahead of her tips at 65° and 22 m/s with the wing at about 24.5° of pitch
 - **THEN** her lift is about 140 % of her weight, the poles are in compression and the tips press up on the wire
 
-### Requirement: Tip drive is limited by grip
-The player's throttle SHALL command an acceleration of the tips along the wire, and the force the wire must supply to the tips SHALL be limited to a configured grip force (which a level MAY set so high that it never acts). Beyond the limit the tips SHALL slip, delivering only the force the grip allows. A configured hang-load limit SHALL make her lose the wire when exceeded.
+### Requirement: The tips are a mass on the wire driven by force
+The tips SHALL be modelled as the poles' mass riding the wire, accelerated along it by the sum of the applied drive force, the shoe friction and the pole's pull, with the same equation as the simulations. The player's throttle SHALL be a wished tip acceleration that is resolved to the force that would give it, and that force SHALL be clamped to the coil thrust forward and to the coil thrust plus the grip limit backward, the coil thrust fading in proportion to tip speed below the configured fade speed. Shoe friction SHALL equal the configured coefficient times the previous step's pole force, directed against the tips' motion. A configured hang-load limit SHALL make her lose the wire when exceeded. Tip parameters SHALL come from the exported constants, and a level MAY override them.
 
-#### Scenario: Brake beyond the grip
-- **WHEN** the player commands a tip brake that would need more force along the wire than the grip limit
-- **THEN** the tips decelerate only as fast as the limit allows and the HUD shows the grip as saturated
+#### Scenario: Brake beyond the caps
+- **WHEN** the player commands a tip brake that would need more backward force than the coils and the jaws can give
+- **THEN** the tips decelerate only as fast as the caps allow and the HUD shows that the tips slip and by how much
+
+#### Scenario: Forward force is the coils only
+- **WHEN** the player asks for forward acceleration beyond the coil thrust
+- **THEN** the tips receive the coil thrust and no more
+
+#### Scenario: Friction under load
+- **WHEN** the pole force rises while the tips move along the wire
+- **THEN** the shoe force on the tips rises with it, against their motion, whether or not anything is commanded
 
 #### Scenario: Overloaded hang
 - **WHEN** the load of her poles on the wire exceeds the hang-load limit

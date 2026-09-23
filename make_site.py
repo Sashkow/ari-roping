@@ -40,7 +40,9 @@ def main():
     import json
     demos = json.loads((HERE / "kept" / "demos-kinematic-2026-09-23.json").read_text())      # the demos of the kept kinematic build, frozen with it
     items = [f'      <li><a href="game-kinematic.html#demo={k}">{d["title"]}</a> <span>{d["kind"]}: {d["what"].split(" (")[0]}</span></li>' for k, d in demos.items()]
-    index = (HERE / "site_index.html").read_text().replace("<!--CARDS-->", "\n".join(cards)).replace("<!--DEMOS-->", "\n".join(items))
+    now = json.loads((HERE / "data" / "demos.json").read_text())                                     # the demos of the current build
+    items_now = [f'      <li><a href="game.html#demo={k}">{d["title"]}</a> <span>{d["kind"]}: {d["what"].split(" (")[0]}</span></li>' for k, d in now.items()]
+    index = (HERE / "site_index.html").read_text().replace("<!--CARDS-->", "\n".join(cards)).replace("<!--DEMOS-NOW-->", "\n".join(items_now)).replace("<!--DEMOS-->", "\n".join(items))
     (OUT / "index.html").write_text(index)
     (OUT / ".nojekyll").write_text("")
     print(f"site in {OUT}")

@@ -13,12 +13,12 @@ const idle = { grip: false, poleRate: 0, spread: false, pitch: 0 }, pullIn = { .
 const launch = (l = 1.0) => F.release({ th: rad(60), om: 7.75, u: 16.6, x: 0 }, l, 0);
 const run = (f, ctl, seconds) => { let got = null; for (let i = 0; i < seconds / DT && !got; i++) got = F.step(f, ctl, DT); return got; };
 
-test('the hoop spins about 2.3 times faster than straight at the same pole length', () => {
+test('the hoop spins faster than straight at the same pole length, by the ratio of the inertias (3.2 with 3 kg poles, 2.3 with 1 kg)', () => {
   const f = launch(), w0 = F.spin(f);
   run(f, pullIn, 0.1); assert.equal(f.curl, 0, 'a tenth of a second of holding is not yet a hoop');
   run(f, pullIn, 0.4); assert.equal(f.curl, 1);
   const ratio = F.spin(f) / w0;
-  assert.ok(Math.abs(ratio - F.inertia(1.0, 0) / F.inertia(1.0, 1)) < 1e-9 && ratio > 2.2 && ratio < 2.4, `ratio ${ratio.toFixed(2)}`);
+  assert.ok(Math.abs(ratio - F.inertia(1.0, 0) / F.inertia(1.0, 1)) < 1e-9 && ratio > 2.0 && ratio < 4.0, `ratio ${ratio.toFixed(2)}`);
   run(f, idle, 0.3); assert.equal(f.curl, 1, 'she stays curled when the key is let go');
 });
 

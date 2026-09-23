@@ -74,13 +74,16 @@ test('spread in the air she glides, no better than about 2.5 to 1, and her spin 
   assert.ok(best > 1.2 && best < 2.7, `best glide ratio ${best.toFixed(2)}`);
 });
 
-test('grip limit: a brake beyond it is clamped, the default limit never acts', () => {
-  const args = [rad(30), 1.0, 20, -40, 2.4, 0, MODE.narrow, 0];
-  const free = P.limitTipAccel(...args, 1e9), capped = P.limitTipAccel(...args, 30);
-  assert.deepEqual(free, { aP: -40, saturated: false });
-  assert.ok(capped.saturated && capped.aP > -40, `clamped to ${capped.aP.toFixed(1)} m/s2`);
-  const out = P.attached(rad(30), 1.0, 20, capped.aP, 2.4, 0, MODE.narrow, 0);
-  assert.ok(Math.abs(Math.abs(out.wireX) - 30) < 1e-6, `force along the wire ${out.wireX.toFixed(1)} N`);
+test('the tips: a wished brake within the caps is met, one beyond them slips; forward force is coils only', () => {
+  const t0 = P.attached(rad(30), 1.0, 20, 0, 2.4, 0, MODE.narrow, 0).tension, sin = Math.sin(rad(30));
+  const met = P.tipForces(20, t0, sin, { accel: -10 }, t0);
+  assert.ok(Math.abs(met.aP + 10) < 1e-9 && Math.abs(met.slip) < 1e-9, `a brake of 10 m/s2 is met (${met.aP.toFixed(2)})`);
+  const big = P.tipForces(20, t0, sin, { accel: -400 }, t0);
+  assert.ok(big.slip < -1 && big.aP > -400 && Math.abs(big.fApplied + (P.tips.coil + P.tips.grip)) < 1e-9, `beyond the caps it slips (${big.aP.toFixed(1)} m/s2)`);
+  const fwd = P.tipForces(20, t0, sin, 5000, t0);
+  assert.ok(Math.abs(fwd.fApplied - P.tips.coil) < 1e-9 && fwd.fJaw === 0, 'forward: the coils only');
+  const shoe = P.tipForces(20, t0, sin, 0, 300);
+  assert.ok(Math.abs(shoe.fShoe + P.tips.mu * 300) < 1e-9, 'the shoe is mu times the previous pole force, against the motion');
 });
 
 test('fixed step: 30 and 60 frames per second give the identical trajectory', () => {

@@ -71,15 +71,24 @@ the parity test runs the same code at the Python step of 0.1 ms. *Alternative:* 
 coarser step; rejected because parity with the Python runs is worth more than step
 economy, and 1 ms costs well under a millisecond of CPU per frame.
 
-**3. Tip drive with a grip limit.** The throttle commands a tip acceleration. The wire
-force along the tips that this implies (`-T sin θ` plus the drive) is clamped to a grip
-limit from YAML; beyond it the tips slip and deliver only what grip allows. A separate
-hang-load limit makes her lose the wire. Both are set impossibly high for now (author,
-2026-09-20: come back to it later), so the mechanism exists and never acts; candidate
-values when it is revisited are 450 N and 700 N, the solved runs having needed 440 N. *Why:* the
-solved runs assumed infinite grip and the notes call that out as the main assumption;
-the game is where it becomes a real constraint, and it bounds the brake a player can
-apply (about 3 g with her body swinging).
+**3. Tips as a mass on the wire: coils, shoe, jaws (rewritten 2026-09-23; the port of
+`radio_ocean` change `roping-tip-dynamics`).** The tips are the poles' 3 kg riding the
+wire. The throttle is still a wished tip acceleration, but it is resolved to the force that
+would give it and clamped to what the tips have: **coils**, induction, 40 N forward or
+back, fading below 3 m/s (what 0.9 kg of motor per tip makes on a 13 mm copper wire, sized
+to hold 79 km/h in either gait); **jaws**, the hands closing on the wire, up to 450 N
+backward only, proportional and automatic, never a control; the **shoe**, sliding
+friction μ·|pole load| against the tips' motion, μ 0.2, always on. Tip acceleration is
+`(f_applied + f_shoe + T₀·sinθ)/(m_tip + M·sin²θ)`, the same equation as the Python.
+Beyond the caps the tips slip: they deliver the cap and the HUD says so. The hang-load
+limit (forced release) stays as tuning. All tip values come from `constants.json`
+`physics.tips`; a level may override under `tips:`. *Why:* the solved runs now use this
+model and parity requires the same one; it makes a launch cost what it costs (the jaws
+peak at 270–320 N of 450), makes the hard brake with the pole pull slip (833 N asked of
+490), and, after a catch, means the tips cannot hold against the swing, so the player
+kills it the gymnast's way (poles short near the top of each swing, long through the
+bottom). *Earlier form:* a single grip limit on a kinematic tip, set impossibly high;
+kept as the `kinematic-baseline-2026-09-23` tag and `game-kinematic.html`.
 
 **4. Flight is a spinning rigid body, and the hoop is the far end of the pole control**
 (hoop: author's decision, 2026-09-20). State `(x, y, vx, vy, φ, L, l, curl)`, angular

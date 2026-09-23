@@ -1,6 +1,6 @@
 {
  "source": "radio_ocean/notes/scenes/ari-roping/configs/baseline.yaml",
- "source_sha256": "68b61012784e116aa3aed8f5bfd5621a8dc18ae7ec099de34ac5fa4d33a818c9",
+ "source_sha256": "94ed7b6c3a863ec9eee136367bc3bfa755d574164d9620e60e6182a5dafd684a",
  "physics": {
   "sim": {
    "g": 9.81,
@@ -8,7 +8,7 @@
   },
   "body": {
    "mass": 4.0,
-   "poles_mass": 1.0,
+   "poles_mass": 3.0,
    "length": 0.8
   },
   "poles": {
@@ -53,6 +53,17 @@
     30
    ]
   },
-  "flare_k": 0.2
+  "flare_k": 0.2,
+  "tips": {
+   "coil": {
+    "thrust": 40.0,
+    "fade_speed": 3.0
+   },
+   "grip": 450.0,
+   "shoe_mu": 0.2,
+   "hang_limit": 1000.0,
+   "sign_smooth": 0.05,
+   "mass": 3.0
+  }
  }
 }
