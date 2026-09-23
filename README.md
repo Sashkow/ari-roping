@@ -82,8 +82,13 @@ forks are not:
 - **Code** (`src/`, `tools/`, `tests/`, `build.py`, `make_site.py`, `package.json`):
   **GPL-3.0-or-later**, text in `LICENSE`. Each source file carries its SPDX line.
 - **Everything else** (`levels/`, `data/`, `notes/`, `openspec/`, `site_index.html`,
-  this README, the built pages, and the character Ari as she appears here):
-  **CC BY-SA 4.0**, text in `LICENSE-CC-BY-SA-4.0`.
+  this README, the built pages): **CC BY-SA 4.0**, text in `LICENSE-CC-BY-SA-4.0`.
+
+**The character is not licensed.** Ari, her name, look and story, are not licensed by
+this repository. They are Ira Shostak's and Oleksandr Lykhenko's, all rights reserved,
+and are used here with permission. The licences above cover the code, data, notes and
+pages in this repository; a fork may keep Ari in it as these files show her, but the
+character herself is not free for other work.
 
 Copyright (c) 2026 Oleksandr Lykhenko (Sashkow). Ari's name and her look are Ira
 Shostak's, who drew her first; the physics, the notes and this game are Oleksandr's.
@@ -94,5 +99,6 @@ the character Ari, her name and visual idea, by Ira Shostak", link to
 it, and say what you changed.
 
 Ira has agreed (2026-09-23, asked by Oleksandr) to the use of Ari's name and
-visuals here and in work derived from this, including commercial use, asking only that
-her authorship be mentioned. That mention is the attribution line above.
+visuals in this project and in Oleksandr's work derived from it, including commercial
+use, asking only that her authorship be mentioned. That mention is the attribution
+line above.
