@@ -12,6 +12,8 @@ HEAD = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta
 PAGES = [  # (source, published name, title, one line)
     (HERE / "dist" / "roping-ari.html", "game.html", "Roping Ari, the Game",
      "Ride the two trolleybus wires at 79 km/h on her poles and get over the trolleybus ahead. Keyboard. Press A to watch it done once."),
+    (HERE / "kept" / "roping-ari-kinematic-2026-09-23.html", "game-kinematic.html", "Roping Ari, the Game, kinematic tips",
+     "The game as built on 2026-09-23, before her tips became a mass on the wire: infinite grip, no friction, 1 kg poles. Kept playable."),
     (DEMOS / "ari-roping-pulled.html", "at-speed.html", "Roping Ari at Speed",
      "Four solved ways over a trolleybus from 79 km/h, side view, to scale; playback stops at each key moment and shows its numbers."),
     (DEMOS / "gaits.html", "gaits.html", "Ari's Wire Gaits",

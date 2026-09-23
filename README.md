@@ -14,6 +14,13 @@ The plan, design and task list are the OpenSpec change `openspec/changes/roping-
 Public site: https://sashkow.github.io/roping-ari/ (repository Sashkow/roping-ari, pushed from
 `../ari-roping-site`; after `make site`, commit and push there).
 
+## Kept builds
+
+`kept/` holds built pages that stay playable on the site after the model moves on:
+`roping-ari-kinematic-2026-09-23.html` is the game before the tip-dynamics port (kinematic tips,
+infinite grip, no friction, 1 kg poles), published as `game-kinematic.html`. Tag
+`kinematic-baseline-2026-09-23` is the source it was built from.
+
 ## Layout
 
     src/        ES modules: aero, physics, world, input, levels, render, hud, main
