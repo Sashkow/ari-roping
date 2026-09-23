@@ -158,8 +158,11 @@ export function boot(data, doc) {
   // the sound controls live on every page, demo or not
   { const sel = $('soundVariant'), st = $('soundStage');
     const lazOpt = sel.querySelector && sel.querySelector('option[value=laz]'); if (!data.sounds && lazOpt) lazOpt.disabled = true;
-    if (soundWant && (soundWant !== 'laz' || data.sounds)) sel.value = soundWant; st.value = stageWant;
-    const apply = () => setSound(sel.value, st.value);
+    // the default: the hash, else what this browser last chose, else the recordings when the build has them (the local build), else off
+    let saved = null; try { saved = JSON.parse(localStorage.getItem('roping-sound') || 'null'); } catch (e) { /* storage blocked */ }
+    const variant0 = soundWant || (saved && saved.variant) || (data.sounds ? 'laz' : 'off'), stage0 = (/[#&]stage=/.test(location.hash) ? stageWant : saved && saved.stage) || stageWant;
+    sel.value = variant0 === 'laz' && !data.sounds ? 'synth' : variant0; st.value = stage0;
+    const apply = () => { setSound(sel.value, st.value); try { localStorage.setItem('roping-sound', JSON.stringify({ variant: sel.value, stage: st.value })); } catch (e) { /* session only */ } };
     sel.addEventListener('change', apply); st.addEventListener('change', apply);
     if (sel.value !== 'off') doc.addEventListener('pointerdown', apply, { once: true }); }
   if (data.demos && Object.keys(data.demos).length) { $('demoList').hidden = false;
