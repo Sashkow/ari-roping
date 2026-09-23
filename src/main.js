@@ -22,19 +22,19 @@ export function boot(data, doc) {
   let demoState = freshState(), stopAtMoments = false, moment = -1, seeking = false;
   // ---- the sound of her tips: off until the player picks a variant (browsers want a click before audio)
   let sound = null, soundCtx = null;
-  const soundWant = (/[#&]sound=(synth|laz)/.exec(location.hash) || [])[1], stageWant = (/[#&]stage=(bus|ari)/.exec(location.hash) || [, 'ari'])[1];
+  const soundWant = (/[#&]sound=(synth|laz)/.exec(location.hash) || [])[1];
   async function soundBuffers() {
     if (!data.sounds) return null;
     const dec = async (b64) => soundCtx.decodeAudioData(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer);
     return { motor: await dec(data.sounds.motor), chopper: await dec(data.sounds.chopper) };
   }
-  async function setSound(variant, stage) {
+  async function setSound(variant) {
     if (variant === 'off') { if (sound) sound.mute(); sound = null; $('soundStatus').textContent = 'off'; return; }
     if (!soundCtx) soundCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (soundCtx.state === 'suspended') await soundCtx.resume();
     if (!sound) { let buffers = null; try { buffers = await soundBuffers(); } catch (e) { $('soundStatus').textContent = `the recordings did not decode: ${e.message}`; }
-      sound = makeSound(soundCtx, { variant, stage, buffers, coilRating: (data.physics.tips || {}).coil ? data.physics.tips.coil.thrust : 40 }); }
-    sound.set(stage, variant);
+      sound = makeSound(soundCtx, { variant, buffers, coilRating: (data.physics.tips || {}).coil ? data.physics.tips.coil.thrust : 40 }); }
+    sound.set(variant);
   }
   const moments = demo ? demo.tokens.filter((k) => k.name !== 'BACK') : [];
   const label = (k) => `${k.name}${k.phase ? '.' + k.phase : ''}${k.kind ? '.' + k.kind : ''}`;
@@ -130,7 +130,7 @@ export function boot(data, doc) {
     });
     renderer.draw(game, game.shown || cmd, level.tuning, demo ? marks() : []); readout();
     if (sound) { if (paused || game.over) sound.mute(); else sound.update(game);
-      const st = sound.status; $('soundStatus').textContent = `${st.playing}, ${sound.stage.name === 'ari' ? "Ari's tips" : 'the bus'}: hum ${st.hz.toFixed(0)} Hz at ${(20 * Math.log10(Math.max(1e-4, st.gain))).toFixed(0)} dB, chopper ${(20 * Math.log10(Math.max(1e-4, st.chopper))).toFixed(0)} dB`; }
+      const st = sound.status, bs = sound.busStatus; $('soundStatus').textContent = `${st.playing}: her tips hum ${st.hz.toFixed(0)} Hz at ${(20 * Math.log10(Math.max(1e-4, st.gain))).toFixed(0)} dB; the trolleybus ${bs.playing === 'silent' ? 'off' : `hums ${bs.hz.toFixed(0)} Hz`}`; }
     if (game.over && $('result').hidden) {
       $('result').hidden = false; $('resultTitle').textContent = game.won ? 'Past the bus' : 'Run over';
       $('resultText').textContent = `${game.over} ${game.won ? `Speed kept: ${((100 * game.st.u) / game.startSpeed).toFixed(0)} %. Apex ${game.apex.toFixed(1)} m above the wires, ${Math.abs(game.turns).toFixed(1)} turns.` : ''} Press R to go again.`;
@@ -156,14 +156,14 @@ export function boot(data, doc) {
   if (demo) { $('title').textContent = `Demo: ${demo.title}`; $('lede').textContent = `${demo.kind === 'line' ? 'A line' : 'A candidate badge'}: ${demo.what}. ${demo.closes ? 'It closes' : 'It does not close'}${Object.keys(demo.numbers).length ? ' (' + Object.entries(demo.numbers).map(([k, v]) => `${k} ${v}`).join(', ') + ')' : ''}. ${demo.note} Playback stops at each numbered moment; P plays on, , and . step between moments, R restarts.`;
     $('demoBox').hidden = false; $('stopAt').addEventListener('change', (e) => { stopAtMoments = e.target.checked; }); }
   // the sound controls live on every page, demo or not
-  { const sel = $('soundVariant'), st = $('soundStage');
+  { const sel = $('soundVariant');
     const lazOpt = sel.querySelector && sel.querySelector('option[value=laz]'); if (!data.sounds && lazOpt) lazOpt.disabled = true;
     // the default: the hash, else what this browser last chose, else the recordings when the build has them (the local build), else off
     let saved = null; try { saved = JSON.parse(localStorage.getItem('roping-sound') || 'null'); } catch (e) { /* storage blocked */ }
-    const variant0 = soundWant || (saved && saved.variant) || (data.sounds ? 'laz' : 'off'), stage0 = (/[#&]stage=/.test(location.hash) ? stageWant : saved && saved.stage) || stageWant;
-    sel.value = variant0 === 'laz' && !data.sounds ? 'synth' : variant0; st.value = stage0;
-    const apply = () => { setSound(sel.value, st.value); try { localStorage.setItem('roping-sound', JSON.stringify({ variant: sel.value, stage: st.value })); } catch (e) { /* session only */ } };
-    sel.addEventListener('change', apply); st.addEventListener('change', apply);
+    const variant0 = soundWant || (saved && saved.variant) || (data.sounds ? 'laz' : 'off');
+    sel.value = variant0 === 'laz' && !data.sounds ? 'synth' : variant0;
+    const apply = () => { setSound(sel.value); try { localStorage.setItem('roping-sound', JSON.stringify({ variant: sel.value })); } catch (e) { /* session only */ } };
+    sel.addEventListener('change', apply);
     if (sel.value !== 'off') doc.addEventListener('pointerdown', apply, { once: true }); }
   if (data.demos && Object.keys(data.demos).length) { $('demoList').hidden = false;
     $('demoLinks').replaceChildren(...Object.entries(data.demos).map(([id, d]) => { const a = doc.createElement('a'); a.href = `#demo=${id}`; a.textContent = `${d.title}`; a.title = d.what; a.className = d.closes ? 'closes' : 'open'; return a; }));

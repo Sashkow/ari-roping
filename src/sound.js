@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// The sound of her tips (2026-09-24). Two variants of the same pair of sounds a ZiU/Ganz trolleybus makes:
+// The sound of her tips and of the trolleybus (2026-09-24). Two variants of the same pair of sounds a ZiU/Ganz trolleybus makes:
 // a traction-motor hum whose pitch follows speed, and a chopper that sings one fixed note (900 Hz on the
-// Ganz-GVM) whatever the speed. Each variant has two stages: `bus`, the trolleybus as it is, and `ari`,
-// her tips: the hum two octaves up (her coils' pole pitch is centimetres, the bus reaches its speed
+// Ganz-GVM) whatever the speed. Two voices: the trolleybus in the game at the `bus` stage, as it is, at its own
+// speed, panned to where it is; and her tips at the `ari` stage: the hum two octaves up (her coils' pole pitch is centimetres, the bus reaches its speed
 // through a wheel and a gearbox), the whole thing far quieter (40 N of force, not kilonewtons), the
 // chopper note kept, since a switching frequency is a design choice, not a size.
 //   synth   Web Audio oscillators: the hum from a few harmonics, the chopper from a square wave with a
@@ -39,23 +39,29 @@ export function seamlessLoop(channels, sampleRate, start, end, fade) {
   return { channels: out, length: n - nf };
 }
 
+/**
+ * Doppler factor heard by a listener on the wire. dx: source position minus listener's (m, along the wire);
+ * vListener, vSource: their velocities along the wire (m/s). c = 343 m/s. Ahead and being caught: above 1.
+ */
+export function doppler(dx, vListener, vSource, c = 343) {
+  const n = dx >= 0 ? 1 : -1;                                   // from the listener toward the source
+  return (c + n * vListener) / (c + n * vSource);
+}
+
 export const CHOPPER_HZ = 900;
 export const RECORDED_WHINE_HZ = 485;     // the reducer recording's pitch, taken as the bus at cruise (22 m/s)
 
-export function makeSound(ctx, opts = {}) {
-  const stage = { name: opts.stage || 'ari', variant: opts.variant || 'synth' };
-  const master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
-  const coilRating = opts.coilRating || 40;
-  // ---- synth: hum = fundamental + 3 harmonics through a low-pass; chopper = square with a 50 Hz wobble
+/** One sounding thing (her tips, or the trolleybus): a hum that follows its speed and a chopper on one note, in one stage, synth or recordings. */
+function makeVoice(ctx, out, stageName, coilRating, buffers) {
+  const master = ctx.createGain(); master.gain.value = 0; master.connect(out);
+  // synth: hum = fundamental + 3 harmonics through a low-pass; chopper = square through two gains in series (level, then a 1 +/- 0.15 wobble)
   const hum = ctx.createGain(), humLp = ctx.createBiquadFilter(); humLp.type = 'lowpass'; humLp.frequency.value = 2500; hum.connect(humLp); humLp.connect(master);
   const harmonics = [1, 2, 3, 4].map((n, i) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = i === 0 ? 'triangle' : 'sine'; g.gain.value = [0.6, 0.25, 0.12, 0.06][i]; o.connect(g); g.connect(hum); o.start(); return { o, n }; });
-  // chopper: a square wave through two gains in series: `chop` is the level (0 when silent), `wob` multiplies it by a slow 1 +/- 0.15 wobble.
-  // (An earlier version added the wobble to the level itself, so the chopper leaked at a fixed volume whenever the level was 0: in the air, and in the recordings variant.)
   const chop = ctx.createGain(), wob = ctx.createGain(), chopOsc = ctx.createOscillator(), wobble = ctx.createOscillator(), wobbleGain = ctx.createGain();
   chopOsc.type = 'square'; chopOsc.frequency.value = CHOPPER_HZ; chopOsc.connect(chop); chop.connect(wob); wob.connect(master); chopOsc.start();
   wob.gain.value = 1; wobble.frequency.value = 50; wobbleGain.gain.value = 0.15; wobble.connect(wobbleGain); wobbleGain.connect(wob.gain); wobble.start();
   chop.gain.value = 0;
-  // ---- laz: looped recordings, if given
+  // recordings, looped over their steady middle
   let motorSrc = null, chopSrc = null; const motorGain = ctx.createGain(), chopGain2 = ctx.createGain(), lazHp = ctx.createBiquadFilter();
   lazHp.type = 'highpass'; lazHp.frequency.value = 80; motorGain.connect(lazHp); lazHp.connect(master); chopGain2.connect(master); motorGain.gain.value = 0; chopGain2.gain.value = 0;
   const looped = (buf, start, end, fade) => {
@@ -65,53 +71,68 @@ export function makeSound(ctx, opts = {}) {
     cut.channels.forEach((ch, c) => b.copyToChannel(ch, c));
     const src = ctx.createBufferSource(); src.buffer = b; src.loop = true; return src;
   };
-  if (opts.buffers && opts.buffers.motor && opts.buffers.chopper) {
-    // the reducer clip: its steady middle, a 0.15 s crossfade; the chopper: after its spin-up (first 1.2 s), a 0.3 s crossfade
-    motorSrc = looped(opts.buffers.motor, 0.1, opts.buffers.motor.duration - 0.05, 0.15); motorSrc.connect(motorGain); motorSrc.start();
-    chopSrc = looped(opts.buffers.chopper, 1.2, opts.buffers.chopper.duration - 0.05, 0.3); chopSrc.connect(chopGain2); chopSrc.start();
+  if (buffers && buffers.motor && buffers.chopper) {
+    motorSrc = looped(buffers.motor, 0.1, buffers.motor.duration - 0.05, 0.15); motorSrc.connect(motorGain); motorSrc.start();
+    chopSrc = looped(buffers.chopper, 1.2, buffers.chopper.duration - 0.05, 0.3); chopSrc.connect(chopGain2); chopSrc.start();
   }
   const hasLaz = !!motorSrc;
-  // ---- the jaws: a short click when they close
-  let jawWas = 0, jawArmed = true, lastClick = -1;   // a click only when the jaws go from nearly nothing to a firm hold, and not more than a few times a second
+  const CHOP_LEVEL = { bus: 0.05, ari: 0.004 };
+  let coilAvg = 0, jawAvg = 0, lastT = ctx.currentTime, jawArmed = true, lastClick = -1;
+  const ramp = (p, v, t = 0.03) => { p.cancelScheduledValues(ctx.currentTime); p.setTargetAtTime(v, ctx.currentTime, t); };
   function click() {
     const n = ctx.sampleRate * 0.03, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0);
     for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 2;
-    const s = ctx.createBufferSource(), g = ctx.createGain(); s.buffer = b; g.gain.value = stage.name === 'ari' ? 0.05 : 0.3; s.connect(g); g.connect(master); s.start();
+    const s = ctx.createBufferSource(), g = ctx.createGain(); s.buffer = b; g.gain.value = stageName === 'ari' ? 0.05 : 0.3; s.connect(g); g.connect(master); s.start();
   }
-  const ramp = (p, v, t = 0.03) => { p.cancelScheduledValues(ctx.currentTime); p.setTargetAtTime(v, ctx.currentTime, t); };
-
-  const status = { playing: 'none', hz: 0, gain: 0, chopper: 0 };
-  // the forces flicker frame to frame (the throttle trims through zero many times a second); the ear gets a 0.3 s average
-  let coilAvg = 0, jawAvg = 0, lastT = ctx.currentTime;
-  const CHOP_LEVEL = { bus: 0.05, ari: 0.004 };   // the chopper well under the hum
+  const status = { playing: 'none', hz: 0, gain: 0 };
   return {
-    stage, hasLaz, status,
-    set(name, variant) { if (name) stage.name = name; if (variant) stage.variant = variant; },
-    /** Called once per frame with the game. */
-    update(g) {
-      const on = g.mode === 'wire' && g.out, u = on ? g.st.u : 0, fCoilNow = on ? Math.abs(g.out.fCoil || 0) : 0, fJawNow = on ? Math.abs(g.out.fJaw || 0) : 0;
-      const now = ctx.currentTime, k = 1 - Math.exp(-(now - lastT) / 0.3); lastT = now;
-      coilAvg += (fCoilNow - coilAvg) * k; jawAvg += (fJawNow - jawAvg) * k;
-      const fCoil = on ? coilAvg : 0, fJaw = on ? jawAvg : 0;
-      const f = humHz(u, stage.name), gain = on ? humGain(fCoil, fJaw, coilRating, stage.name) : 0;
-      const chopper = on ? (0.3 + 0.7 * Math.min(1, fCoil / coilRating)) * CHOP_LEVEL[stage.name] : 0;
-      const synth = stage.variant === 'synth' || !hasLaz;
-      for (const { o, n } of harmonics) ramp(o.frequency, Math.min(8000, f * n), 0.02);
+    status, hasLaz,
+    /** on: sounding at all; u: speed along the wire; fCoil, fJaw: forces (N) this frame; variant: 'synth' | 'laz'; level: 0..1 overall (distance) */
+    update(on, u, fCoilNow, fJawNow, variant, level = 1, dop = 1) {
+      const now = ctx.currentTime, k = 1 - Math.exp(-(now - lastT) / 0.3); lastT = now;          // the forces flicker; the ear gets a 0.3 s average
+      coilAvg += (Math.abs(fCoilNow) - coilAvg) * k; jawAvg += (Math.abs(fJawNow) - jawAvg) * k;
+      const f = humHz(u, stageName), gain = on ? humGain(coilAvg, jawAvg, coilRating, stageName) : 0;
+      const chopper = on ? (0.3 + 0.7 * Math.min(1, coilAvg / coilRating)) * CHOP_LEVEL[stageName] : 0;
+      const synth = variant === 'synth' || !hasLaz;
+      for (const { o, n } of harmonics) ramp(o.frequency, Math.min(8000, f * n * dop), 0.02);
+      ramp(chopOsc.frequency, CHOPPER_HZ * dop, 0.02);
       ramp(hum.gain, synth ? gain : 0, 0.1); ramp(chop.gain, synth ? chopper : 0, 0.1);
-      status.playing = !on ? 'silent (in the air)' : synth ? (stage.variant === 'laz' ? 'synth (the recordings did not load)' : 'synth') : 'recordings';
-      status.hz = f; status.gain = gain; status.chopper = chopper;
       if (hasLaz) {
-        // the recording is the bus at cruise as recorded; Ari's stage is her pitch law over the recording's, 733 / 485 at cruise
-        const rate = stage.name === 'ari' ? f / RECORDED_WHINE_HZ : Math.abs(u) / 22;
-        ramp(motorSrc.playbackRate, Math.max(0.05, rate), 0.02);
+        const rate = stageName === 'ari' ? f / RECORDED_WHINE_HZ : Math.abs(u) / 22;               // the recording is the bus at cruise as recorded
+        ramp(motorSrc.playbackRate, Math.max(0.05, rate) * dop, 0.02); ramp(chopSrc.playbackRate, dop, 0.02);
         ramp(motorGain.gain, synth ? 0 : gain * 2.0, 0.1); ramp(chopGain2.gain, synth ? 0 : chopper * 1.5, 0.1);
       }
-      const j = fJawNow;
+      const j = Math.abs(fJawNow);
       if (j < 15) jawArmed = true;
-      if (jawArmed && j > 60 && ctx.currentTime - lastClick > 0.4) { click(); jawArmed = false; lastClick = ctx.currentTime; }
-      jawWas = j;
-      ramp(master.gain, 0.8, 0.05);
+      if (on && jawArmed && j > 60 && now - lastClick > 0.4) { click(); jawArmed = false; lastClick = now; }
+      ramp(master.gain, 0.8 * level, 0.05);
+      status.playing = !on ? 'silent' : synth ? (variant === 'laz' ? 'synth (the recordings did not load)' : 'synth') : 'recordings';
+      status.hz = f * dop; status.gain = gain;
     },
     mute() { ramp(master.gain, 0, 0.05); },
+  };
+}
+
+/** Her tips and the trolleybus, each with its own voice: hers at the `ari` stage, the bus's at the `bus` stage, panned to where it is and fading with distance. */
+export function makeSound(ctx, opts = {}) {
+  const variant = { name: opts.variant || 'synth' }, coilRating = opts.coilRating || 40;
+  const ariOut = ctx.createGain(); ariOut.connect(ctx.destination);
+  const busPan = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createGain(); busPan.connect(ctx.destination);
+  const ari = makeVoice(ctx, ariOut, 'ari', coilRating, opts.buffers), bus = makeVoice(ctx, busPan, 'bus', coilRating, opts.buffers);
+  const BUS_DRIVE = 0.4;                        // the trolleybus rolls at a steady few m/s: a modest, constant drive
+  return {
+    variant, hasLaz: ari.hasLaz, status: ari.status, busStatus: bus.status,
+    set(v) { if (v) variant.name = v; },
+    update(g) {
+      const on = g.mode === 'wire' && g.out;
+      ari.update(on, on ? g.st.u : 0, on ? g.out.fCoil || 0 : 0, on ? g.out.fJaw || 0 : 0, variant.name, 1);
+      const b = g.world.bus, geo = g.world.geom(), hx = g.head()[0];
+      const dx = b.on ? (geo.rear + geo.front) / 2 - hx : 0, dist = Math.abs(dx), vx = g.velocity()[0];
+      const dop = b.on ? doppler(dx, vx, b.v) : 1;                              // she is the listener: a semitone up closing at 79 km/h, a drop as she passes
+      const level = b.on ? 1 / (1 + (dist / 25) ** 2) : 0;                      // half at 25 m, a tenth at 75
+      if (busPan.pan) busPan.pan.setTargetAtTime(Math.max(-1, Math.min(1, dx / 30)), ctx.currentTime, 0.1);
+      bus.update(b.on, b.v, BUS_DRIVE * coilRating, 0, variant.name, level, dop);
+    },
+    mute() { ari.mute(); bus.mute(); },
   };
 }

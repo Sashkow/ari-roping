@@ -27,3 +27,11 @@ test('a seamless loop: the cut is shorter by the fade, and the seam is a crossfa
   const w = 0.5 * (1 - Math.cos(Math.PI * 50 / 100));
   assert.ok(Math.abs(out.channels[0][50] - (x[250] * Math.sqrt(w) + x[1150] * Math.sqrt(1 - w))) < 1e-6);   // the head carries the tail faded in
 });
+
+test('doppler: the bus ahead is heard higher while she closes on it, lower once she is past', async () => {
+  const { doppler } = await import('../src/sound.js');
+  const ahead = doppler(30, 22, 3), behind = doppler(-30, 22, 3);
+  assert.ok(ahead > 1.05 && ahead < 1.06, `ahead ${ahead.toFixed(3)}`);
+  assert.ok(behind > 0.94 && behind < 0.95, `behind ${behind.toFixed(3)}`);
+  assert.equal(doppler(30, 3, 3), 1);
+});
