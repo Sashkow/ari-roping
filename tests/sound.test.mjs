@@ -17,3 +17,13 @@ test('loudness follows the coil force, the jaws add a little, and her tips are a
   assert.ok(20 * Math.log10(ratio) < -20 && 20 * Math.log10(ratio) > -30, `${(20 * Math.log10(ratio)).toFixed(1)} dB`);
   assert.equal(CHOPPER_HZ, 900);
 });
+
+test('a seamless loop: the cut is shorter by the fade, and the seam is a crossfade of head and tail', async () => {
+  const { seamlessLoop } = await import('../src/sound.js');
+  const sr = 1000, x = new Float32Array(2000).map((_, i) => Math.sin(i * 0.3));
+  const out = seamlessLoop([x], sr, 0.2, 1.2, 0.1);
+  assert.equal(out.length, 900);
+  assert.equal(out.channels[0][500], x[700]);                          // the middle is the recording
+  const w = 0.5 * (1 - Math.cos(Math.PI * 50 / 100));
+  assert.ok(Math.abs(out.channels[0][50] - (x[250] * Math.sqrt(w) + x[1150] * Math.sqrt(1 - w))) < 1e-6);   // the head carries the tail faded in
+});

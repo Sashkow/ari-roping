@@ -29,10 +29,11 @@ export function boot(data, doc) {
     return { motor: await dec(data.sounds.motor), chopper: await dec(data.sounds.chopper) };
   }
   async function setSound(variant, stage) {
-    if (variant === 'off') { if (sound) sound.mute(); sound = null; return; }
+    if (variant === 'off') { if (sound) sound.mute(); sound = null; $('soundStatus').textContent = 'off'; return; }
     if (!soundCtx) soundCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (soundCtx.state === 'suspended') await soundCtx.resume();
-    if (!sound) sound = makeSound(soundCtx, { variant, stage, buffers: await soundBuffers(), coilRating: (data.physics.tips || {}).coil ? data.physics.tips.coil.thrust : 40 });
+    if (!sound) { let buffers = null; try { buffers = await soundBuffers(); } catch (e) { $('soundStatus').textContent = `the recordings did not decode: ${e.message}`; }
+      sound = makeSound(soundCtx, { variant, stage, buffers, coilRating: (data.physics.tips || {}).coil ? data.physics.tips.coil.thrust : 40 }); }
     sound.set(stage, variant);
   }
   const moments = demo ? demo.tokens.filter((k) => k.name !== 'BACK') : [];
@@ -128,7 +129,8 @@ export function boot(data, doc) {
         const next = moments.findIndex((k) => k.t > game.t - dt - 1e-9 && k.t <= game.t + 1e-9); if (next >= 0) { moment = next; if (stopAtMoments) paused = true; drawMoments(); } }
     });
     renderer.draw(game, game.shown || cmd, level.tuning, demo ? marks() : []); readout();
-    if (sound) { if (paused || game.over) sound.mute(); else sound.update(game); }
+    if (sound) { if (paused || game.over) sound.mute(); else sound.update(game);
+      const st = sound.status; $('soundStatus').textContent = `${st.playing}, ${sound.stage.name === 'ari' ? "Ari's tips" : 'the bus'}: hum ${st.hz.toFixed(0)} Hz at ${(20 * Math.log10(Math.max(1e-4, st.gain))).toFixed(0)} dB, chopper ${(20 * Math.log10(Math.max(1e-4, st.chopper))).toFixed(0)} dB`; }
     if (game.over && $('result').hidden) {
       $('result').hidden = false; $('resultTitle').textContent = game.won ? 'Past the bus' : 'Run over';
       $('resultText').textContent = `${game.over} ${game.won ? `Speed kept: ${((100 * game.st.u) / game.startSpeed).toFixed(0)} %. Apex ${game.apex.toFixed(1)} m above the wires, ${Math.abs(game.turns).toFixed(1)} turns.` : ''} Press R to go again.`;
