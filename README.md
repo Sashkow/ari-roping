@@ -85,8 +85,10 @@ forks are not:
   this README, the built pages, and the character Ari as she appears here):
   **CC BY-SA 4.0**, text in `LICENSE-CC-BY-SA-4.0`.
 
-Copyright (c) 2026 Oleksandr Lykhenko (Sashkow).
+Copyright (c) 2026 Oleksandr Lykhenko (Sashkow). Ari's name and her look are Ira
+Shostak's, who drew her first; the physics, the notes and this game are Oleksandr's.
 
-**Attribution for forks and derived work.** Credit "Roping Ari by Oleksandr Lykhenko",
-name the character Ari as his, link to <https://github.com/Sashkow/ari-roping>, keep
-the same licences on what you make from it, and say what you changed.
+**Attribution for forks and derived work.** Credit "Roping Ari by Oleksandr Lykhenko;
+the character Ari, her name and visual idea, by Ira Shostak", link to
+<https://github.com/Sashkow/ari-roping>, keep the same licences on what you make from
+it, and say what you changed.
