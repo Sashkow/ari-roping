@@ -5,8 +5,10 @@
 // are driven by the coils (bounded, symmetric, fading near standstill), the jaws (backward only, up to
 // the grip) and the shoe (mu times the previous step's pole force, against the tips' motion):
 //   aP = (fApplied + fShoe + T0 sin th) / (mTip + M sin^2 th),  T0 the pole force at aP = 0.
-// A control may ask for a force in newtons, or for an acceleration ({accel: a}), which is resolved to
-// the force that would give it and then clamped, so the tips slip when asked for more than they have.
+// A control may ask for a force in newtons, or for an acceleration ({accel: a, hold}), which is resolved to
+// the force that would give it and then clamped, so the tips slip when asked for more than they have. With
+// hold the hands may close to keep the wish; without it (the player's no-key coast) the jaws close only when
+// the wish is to slow down, and the tips ride the coils, which lets a swing drain into them.
 // Angles from the downward vertical, body ahead of the tips positive. Pole force: + tension,
 // - compression. Constants come from data/constants.json, never from this file.
 import { makeWing, makeBody } from './aero.js';
@@ -68,8 +70,12 @@ export function makePhysics(physics, tipsOverride = {}) {
     const fShoe = -MU * Math.abs(tPrev) * sgn;
     const fCmd = typeof cmd === 'object' ? cmd.accel * denom - t0 * sin - fShoe : cmd;
     const coil = COIL * (FADE > 0 ? Math.min(1, Math.abs(u) / FADE) : 1);
-    // the jaws are friction: they only oppose the tips' motion, whichever way along the wire that is; the coils push either way
-    const [lo, hi] = u >= 0 ? [-(coil + GRIP), coil] : [-coil, coil + GRIP];
+    // the jaws are friction: they only oppose the tips' motion, whichever way along the wire that is, and they close only when
+    // the command asks to slow down (a wished acceleration against the motion, or a force against it). No key (a wish for zero
+    // acceleration) rides on the coils alone: held by the jaws the tips would be a fixed bar and a swing could never drain into
+    // them (14 loops after a catch with the jaws holding, 3 without). The coils push either way.
+    const want = typeof cmd === 'object' ? cmd.accel : cmd, braking = want * u < 0 || (typeof cmd === 'object' ? !!cmd.hold : true), grip = braking ? GRIP : 0;
+    const [lo, hi] = u >= 0 ? [-(coil + grip), coil] : [-coil, coil + grip];
     const fApplied = Math.max(lo, Math.min(hi, fCmd));
     const fCoil = Math.max(-coil, Math.min(coil, fApplied));
     return { aP: (fApplied + fShoe + t0 * sin) / denom, fCmd, fApplied, fCoil, fJaw: fApplied - fCoil, fShoe, slip: fCmd - fApplied };

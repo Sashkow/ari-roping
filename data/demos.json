@@ -737,35 +737,35 @@
     "y": -0.34
    },
    {
-    "t": 4.616,
-    "name": "BACK",
-    "speed": 80,
-    "note": "swung back behind her tips",
-    "x": 98.49,
-    "y": -2.39
-   },
-   {
-    "t": 7.615,
+    "t": 4.603,
     "name": "BACK",
     "speed": 83,
     "note": "swung back behind her tips",
-    "x": 161.26,
+    "x": 98.37,
     "y": -2.39
    },
    {
-    "t": 10.643,
+    "t": 7.702,
     "name": "BACK",
-    "speed": 79,
+    "speed": 83,
     "note": "swung back behind her tips",
-    "x": 228.1,
+    "x": 164.39,
     "y": -2.39
    },
    {
-    "t": 13.601,
+    "t": 10.485,
     "name": "BACK",
-    "speed": 78,
+    "speed": 83,
     "note": "swung back behind her tips",
-    "x": 292.55,
+    "x": 226.4,
+    "y": -2.39
+   },
+   {
+    "t": 13.331,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 291.65,
     "y": -2.39
    }
   ]
@@ -915,20 +915,87 @@
     "y": 0.02
    },
    {
-    "t": 9.268,
+    "t": 9.266,
     "name": "BACK",
     "speed": 58,
     "note": "swung back behind her tips",
-    "x": 173.54,
+    "x": 173.53,
     "y": -2.39
    },
    {
-    "t": 12.679,
+    "t": 12.681,
     "name": "BACK",
     "speed": 46,
     "note": "swung back behind her tips",
-    "x": 219.45,
+    "x": 219.59,
     "y": -2.39
+   }
+  ]
+ },
+ "swoop_under": {
+  "title": "Swoop below the wire",
+  "kind": "line",
+  "what": "REL → SPREAD → CATCH → LIFTED with her head never above the wires: a wing hop in the space under them, no trolleybus in the way (free practice)",
+  "start": "pulled",
+  "params": {
+   "release": 24,
+   "hard": false,
+   "pitch": 8,
+   "commit": -0.3,
+   "entry": "brake",
+   "wingAt": 30,
+   "polesOut": false
+  },
+  "closes": false,
+  "numbers": {
+   "got": "REL → SPREAD",
+   "apex_m": -1.88
+  },
+  "note": "",
+  "ended": "She hit the road.",
+  "tokens": [
+   {
+    "t": 1.276,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 72,
+    "angle": 24,
+    "l": 2.4,
+    "note": "let go",
+    "x": 26.91,
+    "y": -2.19
+   },
+   {
+    "t": 1.328,
+    "name": "SPREAD",
+    "pitch": 20,
+    "note": "spread as a wing",
+    "x": 27.94,
+    "y": -2.09
+   },
+   {
+    "t": 1.556,
+    "name": "APEX",
+    "height": -1.88,
+    "speed": 68,
+    "note": "the top of the flight",
+    "x": 32.32,
+    "y": -1.88
+   },
+   {
+    "t": 1.557,
+    "name": "REACH",
+    "height": -1.88,
+    "note": "reached for the wire",
+    "x": 32.34,
+    "y": -1.88
+   },
+   {
+    "t": 1.608,
+    "name": "NARROW",
+    "note": "narrow",
+    "x": 33.3,
+    "y": -1.9
    }
   ]
  },
