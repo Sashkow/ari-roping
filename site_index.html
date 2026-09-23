@@ -18,6 +18,8 @@
   .card.play { border-color: var(--rust); }
   .card h2 { margin: 0 0 4px; font-size: 19px; } .card.play h2::after { content: "  ▸ play"; color: var(--rust); font-weight: 500; font-size: 15px; }
   .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .demos { margin-top: 28px; } .demos h2 { font-size: 20px; margin: 0 0 6px; } .demos ul { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+  .demos li a { font-weight: 600; } .demos li span { color: var(--muted); } .demos kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
   footer { color: var(--muted); font-size: 14px; max-width: 70ch; }
 </style>
 </head>
@@ -30,6 +32,13 @@
   <div class="cards">
 <!--CARDS-->
   </div>
+  <section class="demos">
+    <h2>The moves, as demos</h2>
+    <p class="lede">Ten candidate rewards of the game, each a scripted run through the same physics with numbered stops at its key moments (tick "Stop at key moments" on the page, or step with <kbd>,</kbd> and <kbd>.</kbd>). These are on the kinematic-tips build of 2026-09-23, kept as it was.</p>
+    <ul>
+<!--DEMOS-->
+    </ul>
+  </section>
   <footer>Point-mass physics, a 4 kg body on rigid poles, still air; every number on these pages comes from the same small simulations. The game needs a keyboard.<br>Pages, notes and data: <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>; game code: <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0-or-later</a>. Sources and licences: <a href="https://github.com/Sashkow/ari-roping">github.com/Sashkow/ari-roping</a>. Roping Ari by Oleksandr Lykhenko; the character Ari, her name and her look, by Ira Shostak; the character herself is not under these licences.</footer>
 </main>
 </body>

@@ -1,0 +1,1236 @@
+{
+ "spun_down": {
+  "title": "Spun down",
+  "kind": "badge",
+  "what": "the hoop, then opened, then a soft catch",
+  "start": "pulled",
+  "params": {
+   "release": 58,
+   "commit": 2
+  },
+  "closes": true,
+  "numbers": {
+   "order": "CURL → OPEN → CATCH.soft"
+  },
+  "note": "",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 2.93,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 1,
+    "note": "pulled the poles in",
+    "x": 63.71,
+    "y": -0.8
+   },
+   {
+    "t": 2.974,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 80,
+    "angle": 58,
+    "l": 1,
+    "note": "let go",
+    "x": 64.7,
+    "y": -0.52
+   },
+   {
+    "t": 3.193,
+    "name": "CURL",
+    "spin": 1.9,
+    "note": "curled into the hoop",
+    "x": 69.25,
+    "y": 0.87
+   },
+   {
+    "t": 3.423,
+    "name": "TURN",
+    "n": 1,
+    "note": "1 full turn",
+    "x": 73.96,
+    "y": 1.81
+   },
+   {
+    "t": 3.72,
+    "name": "APEX",
+    "height": 2.24,
+    "speed": 72,
+    "note": "the top of the flight",
+    "x": 79.97,
+    "y": 2.24
+   },
+   {
+    "t": 3.736,
+    "name": "TURN",
+    "n": 2,
+    "note": "2 full turns",
+    "x": 80.29,
+    "y": 2.24
+   },
+   {
+    "t": 3.944,
+    "name": "REACH",
+    "height": 2,
+    "note": "reached for the wire",
+    "x": 84.44,
+    "y": 2
+   },
+   {
+    "t": 3.968,
+    "name": "OVER",
+    "height": 4.34,
+    "note": "over the windscreen, in the air",
+    "x": 84.92,
+    "y": 1.94
+   },
+   {
+    "t": 4.048,
+    "name": "TURN",
+    "n": 3,
+    "note": "3 full turns",
+    "x": 86.5,
+    "y": 1.72
+   },
+   {
+    "t": 4.164,
+    "name": "OPEN",
+    "note": "opened out of the hoop",
+    "x": 88.79,
+    "y": 1.28
+   },
+   {
+    "t": 4.502,
+    "name": "CATCH",
+    "kind": "soft",
+    "speed": 69,
+    "l": 1.61,
+    "angle": -63,
+    "note": "caught the wire",
+    "x": 95.35,
+    "y": -0.72
+   },
+   {
+    "t": 4.503,
+    "name": "PASS",
+    "speed": 69,
+    "note": "past the trolleybus, on the wire",
+    "x": 95.37,
+    "y": -0.73
+   },
+   {
+    "t": 5.718,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 123.53,
+    "y": -2.39
+   }
+  ]
+ },
+ "held_it": {
+  "title": "Held it",
+  "kind": "badge",
+  "what": "a hard catch (over the absorption limit) survived under the body-load limit",
+  "start": "pulled",
+  "params": {
+   "release": 58,
+   "commit": 3
+  },
+  "closes": true,
+  "numbers": {},
+  "note": "the body-load limit is impossibly high for now (base.yaml), so any hard catch survives",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 2.93,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 1,
+    "note": "pulled the poles in",
+    "x": 63.71,
+    "y": -0.8
+   },
+   {
+    "t": 2.974,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 80,
+    "angle": 58,
+    "l": 1,
+    "note": "let go",
+    "x": 64.7,
+    "y": -0.52
+   },
+   {
+    "t": 3.708,
+    "name": "APEX",
+    "height": 2.21,
+    "speed": 68,
+    "note": "the top of the flight",
+    "x": 79.48,
+    "y": 2.21
+   },
+   {
+    "t": 3.709,
+    "name": "REACH",
+    "height": 2.21,
+    "note": "reached for the wire",
+    "x": 79.5,
+    "y": 2.21
+   },
+   {
+    "t": 4.005,
+    "name": "OVER",
+    "height": 4.18,
+    "note": "over the windscreen, in the air",
+    "x": 85.02,
+    "y": 1.78
+   },
+   {
+    "t": 4.59,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 61,
+    "l": 1.52,
+    "angle": 11,
+    "note": "a hard catch",
+    "x": 95.47,
+    "y": -1.49
+   },
+   {
+    "t": 4.591,
+    "name": "PASS",
+    "speed": 61,
+    "note": "past the trolleybus, on the wire",
+    "x": 95.49,
+    "y": -1.5
+   },
+   {
+    "t": 4.819,
+    "name": "BACK",
+    "speed": 65,
+    "note": "swung back behind her tips",
+    "x": 99.17,
+    "y": -2.39
+   },
+   {
+    "t": 8.273,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 177.2,
+    "y": -2.39
+   },
+   {
+    "t": 11.342,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 247.64,
+    "y": -2.39
+   }
+  ]
+ },
+ "through_the_arc": {
+  "title": "Through the arc",
+  "kind": "badge",
+  "what": "arced between the wires, stayed on, and still passed the bus",
+  "start": "pulled",
+  "params": {
+   "release": 58,
+   "commit": 1.6
+  },
+  "closes": true,
+  "numbers": {
+   "arc": true
+  },
+  "note": "",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 2.93,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 1,
+    "note": "pulled the poles in",
+    "x": 63.71,
+    "y": -0.8
+   },
+   {
+    "t": 2.974,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 80,
+    "angle": 58,
+    "l": 1,
+    "note": "let go",
+    "x": 64.7,
+    "y": -0.52
+   },
+   {
+    "t": 3.026,
+    "name": "SPREAD",
+    "pitch": 25,
+    "note": "spread as a wing",
+    "x": 65.77,
+    "y": -0.13
+   },
+   {
+    "t": 3.044,
+    "name": "ARC",
+    "seconds": 3,
+    "note": "an arc between her and the wire",
+    "x": 66.13,
+    "y": 0
+   },
+   {
+    "t": 3.095,
+    "name": "NARROW",
+    "note": "narrow",
+    "x": 67.16,
+    "y": 0.37
+   },
+   {
+    "t": 3.263,
+    "name": "CURL",
+    "spin": 1.6,
+    "note": "curled into the hoop",
+    "x": 70.54,
+    "y": 1.37
+   },
+   {
+    "t": 3.52,
+    "name": "TURN",
+    "n": 1,
+    "note": "1 full turn",
+    "x": 75.62,
+    "y": 2.36
+   },
+   {
+    "t": 3.78,
+    "name": "APEX",
+    "height": 2.69,
+    "speed": 70,
+    "note": "the top of the flight",
+    "x": 80.71,
+    "y": 2.69
+   },
+   {
+    "t": 3.892,
+    "name": "TURN",
+    "n": 2,
+    "note": "2 full turns",
+    "x": 82.88,
+    "y": 2.62
+   },
+   {
+    "t": 4.003,
+    "name": "OVER",
+    "height": 4.84,
+    "note": "over the windscreen, in the air",
+    "x": 85.02,
+    "y": 2.44
+   },
+   {
+    "t": 4.252,
+    "name": "REACH",
+    "height": 1.59,
+    "note": "reached for the wire",
+    "x": 89.78,
+    "y": 1.59
+   },
+   {
+    "t": 4.265,
+    "name": "TURN",
+    "n": 3,
+    "note": "3 full turns",
+    "x": 90.03,
+    "y": 1.53
+   },
+   {
+    "t": 4.508,
+    "name": "OPEN",
+    "note": "opened out of the hoop",
+    "x": 94.62,
+    "y": 0.11
+   },
+   {
+    "t": 4.668,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 66,
+    "l": 1.19,
+    "angle": -18,
+    "note": "a hard catch",
+    "x": 97.6,
+    "y": -1.14
+   },
+   {
+    "t": 4.669,
+    "name": "PASS",
+    "speed": 66,
+    "note": "past the trolleybus, on the wire",
+    "x": 97.62,
+    "y": -1.14
+   },
+   {
+    "t": 7.869,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 169.85,
+    "y": -2.39
+   },
+   {
+    "t": 10.641,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 233.46,
+    "y": -2.39
+   }
+  ]
+ },
+ "short_pole_flight": {
+  "title": "Short-pole flight",
+  "kind": "badge",
+  "what": "the lifted gait held for 2 s at the shortest pole length (free practice, no trolleybus: the bus ended the 1.5 s run of 2026-09-23, not the gait)",
+  "start": "lifted",
+  "params": {
+   "speed": 26,
+   "settle": 0.5
+  },
+  "closes": true,
+  "numbers": {
+   "held_s": 12.96
+  },
+  "note": "",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 0.051,
+    "name": "SPREAD",
+    "pitch": 25,
+    "note": "spread as a wing",
+    "x": 3.3,
+    "y": -1.01
+   },
+   {
+    "t": 0.201,
+    "name": "LIFTED",
+    "phase": "enter",
+    "speed": 82,
+    "lead": 65,
+    "lift": 180,
+    "note": "flying ahead of her tips",
+    "x": 6.65,
+    "y": -1.03
+   }
+  ]
+ },
+ "hoop_over_roof": {
+  "title": "Hoop over the roof",
+  "kind": "badge",
+  "what": "curled into the hoop with her head above the trolleybus",
+  "start": "pulled",
+  "params": {
+   "release": 58,
+   "commit": 1.6
+  },
+  "closes": true,
+  "numbers": {
+   "at_s": 3.27
+  },
+  "note": "",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 2.93,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 1,
+    "note": "pulled the poles in",
+    "x": 63.71,
+    "y": -0.8
+   },
+   {
+    "t": 2.974,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 80,
+    "angle": 58,
+    "l": 1,
+    "note": "let go",
+    "x": 64.7,
+    "y": -0.52
+   },
+   {
+    "t": 3.193,
+    "name": "CURL",
+    "spin": 1.9,
+    "note": "curled into the hoop",
+    "x": 69.25,
+    "y": 0.87
+   },
+   {
+    "t": 3.423,
+    "name": "TURN",
+    "n": 1,
+    "note": "1 full turn",
+    "x": 73.96,
+    "y": 1.81
+   },
+   {
+    "t": 3.72,
+    "name": "APEX",
+    "height": 2.24,
+    "speed": 72,
+    "note": "the top of the flight",
+    "x": 79.97,
+    "y": 2.24
+   },
+   {
+    "t": 3.736,
+    "name": "TURN",
+    "n": 2,
+    "note": "2 full turns",
+    "x": 80.29,
+    "y": 2.24
+   },
+   {
+    "t": 3.968,
+    "name": "OVER",
+    "height": 4.34,
+    "note": "over the windscreen, in the air",
+    "x": 84.92,
+    "y": 1.94
+   },
+   {
+    "t": 4.048,
+    "name": "TURN",
+    "n": 3,
+    "note": "3 full turns",
+    "x": 86.5,
+    "y": 1.72
+   },
+   {
+    "t": 4.084,
+    "name": "REACH",
+    "height": 1.59,
+    "note": "reached for the wire",
+    "x": 87.21,
+    "y": 1.59
+   },
+   {
+    "t": 4.188,
+    "name": "OPEN",
+    "note": "opened out of the hoop",
+    "x": 89.26,
+    "y": 1.17
+   },
+   {
+    "t": 4.531,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 69,
+    "l": 1.41,
+    "angle": -48,
+    "note": "a hard catch",
+    "x": 95.91,
+    "y": -0.94
+   },
+   {
+    "t": 4.532,
+    "name": "PASS",
+    "speed": 69,
+    "note": "past the trolleybus, on the wire",
+    "x": 95.93,
+    "y": -0.95
+   }
+  ]
+ },
+ "kiss": {
+  "title": "Kiss",
+  "kind": "badge",
+  "what": "a catch with under 0.5 m/s of speed along the poles to absorb",
+  "start": "pulled",
+  "params": {
+   "release": 45,
+   "commit": 1.4,
+   "polesOut": false
+  },
+  "closes": true,
+  "numbers": {
+   "along_mps": 0.42
+  },
+  "note": "",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 2.93,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 1,
+    "note": "pulled the poles in",
+    "x": 63.71,
+    "y": -0.8
+   },
+   {
+    "t": 2.948,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 85,
+    "angle": 45,
+    "l": 1,
+    "note": "let go",
+    "x": 64.13,
+    "y": -0.7
+   },
+   {
+    "t": 3.576,
+    "name": "APEX",
+    "height": 1.27,
+    "speed": 78,
+    "note": "the top of the flight",
+    "x": 78.09,
+    "y": 1.27
+   },
+   {
+    "t": 3.577,
+    "name": "REACH",
+    "height": 1.27,
+    "note": "reached for the wire",
+    "x": 78.11,
+    "y": 1.27
+   },
+   {
+    "t": 3.756,
+    "name": "TURN",
+    "n": 1,
+    "note": "1 full turn",
+    "x": 81.93,
+    "y": 1.11
+   },
+   {
+    "t": 3.887,
+    "name": "OVER",
+    "height": 3.2,
+    "note": "over the windscreen, in the air",
+    "x": 84.68,
+    "y": 0.8
+   },
+   {
+    "t": 4.04,
+    "name": "CATCH",
+    "kind": "soft",
+    "speed": 75,
+    "l": 2.38,
+    "angle": 95,
+    "note": "caught the wire",
+    "x": 87.85,
+    "y": 0.22
+   },
+   {
+    "t": 4.188,
+    "name": "PASS",
+    "speed": 76,
+    "note": "past the trolleybus, on the wire",
+    "x": 90.9,
+    "y": -0.54
+   },
+   {
+    "t": 4.586,
+    "name": "BACK",
+    "speed": 82,
+    "note": "swung back behind her tips",
+    "x": 97.43,
+    "y": -2.39
+   },
+   {
+    "t": 8.804,
+    "name": "BACK",
+    "speed": 82,
+    "note": "swung back behind her tips",
+    "x": 193.15,
+    "y": -2.39
+   },
+   {
+    "t": 12.318,
+    "name": "BACK",
+    "speed": 82,
+    "note": "swung back behind her tips",
+    "x": 272.9,
+    "y": -2.39
+   }
+  ]
+ },
+ "swoop": {
+  "title": "Swoop",
+  "kind": "line",
+  "what": "REL → SPREAD → CATCH → LIFTED before the swing back (soft or hard catch: that is Kiss / Held it)",
+  "start": "pulled",
+  "params": {
+   "release": 52,
+   "pitch": 16,
+   "commit": 1.8,
+   "entry": "coast",
+   "wingAt": 50,
+   "polesOut": true
+  },
+  "closes": true,
+  "numbers": {
+   "got": "REL → SPREAD → CATCH.hard → LIFTED",
+   "lifted_after_catch_s": 0.71,
+   "held_s": 2.42
+  },
+  "note": "",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 2.93,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 1,
+    "note": "pulled the poles in",
+    "x": 63.71,
+    "y": -0.8
+   },
+   {
+    "t": 2.962,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 82,
+    "angle": 52,
+    "l": 1,
+    "note": "let go",
+    "x": 64.44,
+    "y": -0.6
+   },
+   {
+    "t": 3.159,
+    "name": "SPREAD",
+    "pitch": 20,
+    "note": "spread as a wing",
+    "x": 68.7,
+    "y": 0.59
+   },
+   {
+    "t": 3.998,
+    "name": "OVER",
+    "height": 5.79,
+    "note": "over the windscreen, in the air",
+    "x": 85.01,
+    "y": 3.39
+   },
+   {
+    "t": 4.198,
+    "name": "APEX",
+    "height": 3.5,
+    "speed": 64,
+    "note": "the top of the flight",
+    "x": 88.6,
+    "y": 3.5
+   },
+   {
+    "t": 4.974,
+    "name": "REACH",
+    "height": 1.79,
+    "note": "reached for the wire",
+    "x": 101.75,
+    "y": 1.79
+   },
+   {
+    "t": 5.024,
+    "name": "NARROW",
+    "note": "narrow",
+    "x": 102.56,
+    "y": 1.56
+   },
+   {
+    "t": 5.451,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 54,
+    "l": 1.59,
+    "angle": -35,
+    "note": "a hard catch",
+    "x": 109.21,
+    "y": -1.3
+   },
+   {
+    "t": 5.452,
+    "name": "PASS",
+    "speed": 54,
+    "note": "past the trolleybus, on the wire",
+    "x": 109.23,
+    "y": -1.31
+   },
+   {
+    "t": 6.009,
+    "name": "SPREAD",
+    "pitch": 35,
+    "note": "spread as a wing",
+    "x": 120.03,
+    "y": -1.08
+   },
+   {
+    "t": 6.159,
+    "name": "LIFTED",
+    "phase": "enter",
+    "speed": 54,
+    "lead": 64,
+    "lift": 111,
+    "note": "flying ahead of her tips",
+    "x": 122.88,
+    "y": -1.04
+   },
+   {
+    "t": 8.379,
+    "name": "LIFTED",
+    "phase": "hold",
+    "seconds": 2.42,
+    "note": "held the lifted gait",
+    "x": 155.37,
+    "y": -1.96
+   },
+   {
+    "t": 8.715,
+    "name": "BACK",
+    "speed": 54,
+    "note": "swung back behind her tips",
+    "x": 159.03,
+    "y": -2.39
+   },
+   {
+    "t": 12.521,
+    "name": "BACK",
+    "speed": 54,
+    "note": "swung back behind her tips",
+    "x": 216.07,
+    "y": -2.39
+   }
+  ]
+ },
+ "rolled_up": {
+  "title": "Rolled up",
+  "kind": "line",
+  "what": "REL → CURL → OPEN → SPREAD → CATCH in one flight",
+  "start": "pulled",
+  "params": {
+   "release": 58,
+   "openAt": 0.4,
+   "pitch": 12,
+   "commit": 1.4
+  },
+  "closes": true,
+  "numbers": {
+   "got": "REL → CURL → OPEN → SPREAD → CATCH.hard"
+  },
+  "note": "",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 2.93,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 1,
+    "note": "pulled the poles in",
+    "x": 63.71,
+    "y": -0.8
+   },
+   {
+    "t": 2.974,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 80,
+    "angle": 58,
+    "l": 1,
+    "note": "let go",
+    "x": 64.7,
+    "y": -0.52
+   },
+   {
+    "t": 3.193,
+    "name": "CURL",
+    "spin": 1.9,
+    "note": "curled into the hoop",
+    "x": 69.25,
+    "y": 0.87
+   },
+   {
+    "t": 3.426,
+    "name": "TURN",
+    "n": 1,
+    "note": "1 full turn",
+    "x": 74.02,
+    "y": 1.82
+   },
+   {
+    "t": 3.474,
+    "name": "OPEN",
+    "note": "opened out of the hoop",
+    "x": 75,
+    "y": 1.95
+   },
+   {
+    "t": 3.615,
+    "name": "SPREAD",
+    "pitch": 12,
+    "note": "spread as a wing",
+    "x": 77.85,
+    "y": 2.2
+   },
+   {
+    "t": 3.807,
+    "name": "APEX",
+    "height": 2.31,
+    "speed": 70,
+    "note": "the top of the flight",
+    "x": 81.65,
+    "y": 2.31
+   },
+   {
+    "t": 3.976,
+    "name": "OVER",
+    "height": 4.62,
+    "note": "over the windscreen, in the air",
+    "x": 84.93,
+    "y": 2.22
+   },
+   {
+    "t": 4.344,
+    "name": "REACH",
+    "height": 1.39,
+    "note": "reached for the wire",
+    "x": 91.95,
+    "y": 1.39
+   },
+   {
+    "t": 4.394,
+    "name": "NARROW",
+    "note": "narrow",
+    "x": 92.89,
+    "y": 1.21
+   },
+   {
+    "t": 4.838,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 62,
+    "l": 1.52,
+    "angle": -26,
+    "note": "a hard catch",
+    "x": 100.84,
+    "y": -1.37
+   },
+   {
+    "t": 4.839,
+    "name": "PASS",
+    "speed": 62,
+    "note": "past the trolleybus, on the wire",
+    "x": 100.86,
+    "y": -1.37
+   },
+   {
+    "t": 4.889,
+    "name": "SPREAD",
+    "pitch": 12,
+    "note": "spread as a wing",
+    "x": 101.74,
+    "y": -1.71
+   },
+   {
+    "t": 6.158,
+    "name": "ARC",
+    "seconds": 3,
+    "note": "an arc between her and the wire",
+    "x": 126.98,
+    "y": 0
+   },
+   {
+    "t": 6.208,
+    "name": "NARROW",
+    "note": "narrow",
+    "x": 128.13,
+    "y": 0.13
+   },
+   {
+    "t": 8.838,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 190.88,
+    "y": -2.39
+   },
+   {
+    "t": 11.928,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 261.79,
+    "y": -2.39
+   }
+  ]
+ },
+ "one_breath": {
+  "title": "One breath",
+  "kind": "line",
+  "what": "PULL → REL → CATCH → PASS in under 3 s",
+  "start": "pulled",
+  "params": {
+   "release": 58,
+   "gap": 16.5
+  },
+  "closes": true,
+  "numbers": {
+   "breath_s": 1.66
+  },
+  "note": "",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 2.93,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 1,
+    "note": "pulled the poles in",
+    "x": 63.71,
+    "y": -0.8
+   },
+   {
+    "t": 2.974,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 80,
+    "angle": 58,
+    "l": 1,
+    "note": "let go",
+    "x": 64.7,
+    "y": -0.52
+   },
+   {
+    "t": 3.708,
+    "name": "APEX",
+    "height": 2.21,
+    "speed": 68,
+    "note": "the top of the flight",
+    "x": 79.48,
+    "y": 2.21
+   },
+   {
+    "t": 4.005,
+    "name": "OVER",
+    "height": 4.18,
+    "note": "over the windscreen, in the air",
+    "x": 85.02,
+    "y": 1.78
+   },
+   {
+    "t": 4.116,
+    "name": "REACH",
+    "height": 1.39,
+    "note": "reached for the wire",
+    "x": 87.06,
+    "y": 1.39
+   },
+   {
+    "t": 4.59,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 61,
+    "l": 1.52,
+    "angle": 11,
+    "note": "a hard catch",
+    "x": 95.47,
+    "y": -1.49
+   },
+   {
+    "t": 4.591,
+    "name": "PASS",
+    "speed": 61,
+    "note": "past the trolleybus, on the wire",
+    "x": 95.49,
+    "y": -1.5
+   },
+   {
+    "t": 4.821,
+    "name": "BACK",
+    "speed": 65,
+    "note": "swung back behind her tips",
+    "x": 99.19,
+    "y": -2.39
+   },
+   {
+    "t": 8.279,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 177.33,
+    "y": -2.39
+   },
+   {
+    "t": 11.353,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 247.86,
+    "y": -2.39
+   }
+  ]
+ },
+ "full_repertoire": {
+  "title": "Full repertoire",
+  "kind": "line",
+  "what": "REL, CURL, OPEN, SPREAD, CATCH and LIFTED, in any order, within 6 s",
+  "start": "pulled",
+  "params": {
+   "release": 58,
+   "openAt": 0.4,
+   "pitch": 12,
+   "commit": 1.8,
+   "entry": "speed",
+   "wingAt": 30,
+   "polesOut": false
+  },
+  "closes": true,
+  "numbers": {
+   "got": "REL CURL OPEN SPREAD CATCH LIFTED",
+   "span_s": 5.39,
+   "held_s": "to the end"
+  },
+  "note": "",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 2.93,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 1,
+    "note": "pulled the poles in",
+    "x": 63.71,
+    "y": -0.8
+   },
+   {
+    "t": 2.974,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 80,
+    "angle": 58,
+    "l": 1,
+    "note": "let go",
+    "x": 64.7,
+    "y": -0.52
+   },
+   {
+    "t": 3.193,
+    "name": "CURL",
+    "spin": 1.9,
+    "note": "curled into the hoop",
+    "x": 69.25,
+    "y": 0.87
+   },
+   {
+    "t": 3.426,
+    "name": "TURN",
+    "n": 1,
+    "note": "1 full turn",
+    "x": 74.02,
+    "y": 1.82
+   },
+   {
+    "t": 3.474,
+    "name": "OPEN",
+    "note": "opened out of the hoop",
+    "x": 75,
+    "y": 1.95
+   },
+   {
+    "t": 3.615,
+    "name": "SPREAD",
+    "pitch": 12,
+    "note": "spread as a wing",
+    "x": 77.85,
+    "y": 2.2
+   },
+   {
+    "t": 3.807,
+    "name": "APEX",
+    "height": 2.31,
+    "speed": 70,
+    "note": "the top of the flight",
+    "x": 81.65,
+    "y": 2.31
+   },
+   {
+    "t": 3.976,
+    "name": "OVER",
+    "height": 4.62,
+    "note": "over the windscreen, in the air",
+    "x": 84.93,
+    "y": 2.22
+   },
+   {
+    "t": 4.209,
+    "name": "REACH",
+    "height": 1.8,
+    "note": "reached for the wire",
+    "x": 89.4,
+    "y": 1.8
+   },
+   {
+    "t": 4.259,
+    "name": "NARROW",
+    "note": "narrow",
+    "x": 90.35,
+    "y": 1.66
+   },
+   {
+    "t": 4.806,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 62,
+    "l": 1.52,
+    "angle": -28,
+    "note": "a hard catch",
+    "x": 100.23,
+    "y": -1.35
+   },
+   {
+    "t": 4.807,
+    "name": "PASS",
+    "speed": 62,
+    "note": "past the trolleybus, on the wire",
+    "x": 100.25,
+    "y": -1.35
+   },
+   {
+    "t": 5.446,
+    "name": "BACK",
+    "speed": 80,
+    "note": "swung back behind her tips",
+    "x": 113.25,
+    "y": -1.52
+   },
+   {
+    "t": 7.542,
+    "name": "SPREAD",
+    "pitch": 2,
+    "note": "spread as a wing",
+    "x": 165.08,
+    "y": -1.17
+   },
+   {
+    "t": 8.363,
+    "name": "LIFTED",
+    "phase": "enter",
+    "speed": 75,
+    "lead": 79,
+    "lift": 125,
+    "note": "flying ahead of her tips",
+    "x": 182.63,
+    "y": -0.3
+   }
+  ]
+ }
+}

@@ -37,7 +37,10 @@ def main():
         (OUT / name).write_text(wrap(src.read_text()))
         cards.append(f'    <a class="card{" play" if name == "game.html" else ""}" href="{name}"><h2>{title}</h2><p>{line}</p></a>')
         print(f"{name:20s} {(OUT / name).stat().st_size // 1024:5d} KB")
-    index = (HERE / "site_index.html").read_text().replace("<!--CARDS-->", "\n".join(cards))
+    import json
+    demos = json.loads((HERE / "kept" / "demos-kinematic-2026-09-23.json").read_text())      # the demos of the kept kinematic build, frozen with it
+    items = [f'      <li><a href="game-kinematic.html#demo={k}">{d["title"]}</a> <span>{d["kind"]}: {d["what"].split(" (")[0]}</span></li>' for k, d in demos.items()]
+    index = (HERE / "site_index.html").read_text().replace("<!--CARDS-->", "\n".join(cards)).replace("<!--DEMOS-->", "\n".join(items))
     (OUT / "index.html").write_text(index)
     (OUT / ".nojekyll").write_text("")
     print(f"site in {OUT}")
