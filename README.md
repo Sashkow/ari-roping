@@ -92,3 +92,7 @@ Shostak's, who drew her first; the physics, the notes and this game are Oleksand
 the character Ari, her name and visual idea, by Ira Shostak", link to
 <https://github.com/Sashkow/ari-roping>, keep the same licences on what you make from
 it, and say what you changed.
+
+Ira has agreed (2026-09-23, asked by Oleksandr) to the use of Ari's name and
+visuals here and in work derived from this, including commercial use, asking only that
+her authorship be mentioned. That mention is the attribution line above.
