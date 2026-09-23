@@ -106,6 +106,19 @@ export const demos = {
       const h = l && after(toks, l, 'LIFTED', (k) => k.phase === 'hold');
       return { ok: !!l && backsBetween(toks, c, l) === 0, got: [r && 'REL', s && 'SPREAD', c && 'CATCH.' + c.kind, l && 'LIFTED'].filter(Boolean).join(' → '), lifted_after_catch_s: l && +(l.t - c.t).toFixed(2), held_s: h ? h.seconds : l ? 'to the end' : null, score: h ? h.seconds : l ? 99 : 0 }; },
   },
+  swoop_under: {
+    title: 'Swoop below the wire', kind: 'line', what: 'REL → SPREAD → CATCH → LIFTED with her head never above the wires: a wing hop in the space under them, no trolleybus in the way (free practice)',
+    bus: false,
+    params: { release: [24, 32, 40, 48, 56], hard: [false, true], pitch: [8, 14], commit: [-0.3, -0.8, -1.3], entry: ['brake', 'coast'], wingAt: [30, 40], polesOut: [false, true] },
+    plan(g, p, st) { const k = {};
+      if (g.world.bus.on) g.world.setBus(false);
+      if (g.mode === 'wire' && g.catches === 0) { st.go ??= g.t > 0.5; if (g.t > 0.5) { k.left = true; k.hard = p.hard; if (g.st.th >= rad(p.release)) k.grip = true; } }   // a brake on full-length poles, no pump: she must stay under the wires
+      else if (g.mode === 'air') { if (!st.wingOn && g.fl.vy > 0) { k.wing = true; st.wingOn = true; } if (st.wingOn) setPitch(k, st, p.pitch); if (g.fl.vy < 0 && g.fl.y < p.commit) k.grip = true; }   // the wing goes on at once, under the wires
+      else { if (st.wingOn && !st.reset) { st.wingOn = false; st.reset = true; k.wing = true; } goLifted(g, k, p, st); } return k; },
+    closes(toks, g, trace) { const r = has(toks, 'REL'), s = r && after(toks, r, 'SPREAD'), c = s && after(toks, s, 'CATCH'), l = c && after(toks, c, 'LIFTED', liftedEnter);
+      const top = Math.max(...toks.filter((k) => k.name === 'APEX').map((k) => k.height), -9), under = top < 0;
+      return { ok: !!l && under && backsBetween(toks, c, l) === 0, got: [r && 'REL', s && 'SPREAD', c && 'CATCH.' + c.kind, l && 'LIFTED'].filter(Boolean).join(' → '), apex_m: +top.toFixed(2), score: (c ? 10 : 0) + (l ? 10 : 0) + (under ? 5 : 0) - Math.max(0, top) }; },
+  },
   rolled_up: {
     title: 'Rolled up', kind: 'line', what: 'REL → CURL → OPEN → SPREAD → CATCH in one flight',
     params: { release: [58], openAt: [0.4, 0.6, 0.8], pitch: [12], commit: [1.4, 1.8] },

@@ -160,7 +160,7 @@ export function boot(data, doc) {
     const lazOpt = sel.querySelector && sel.querySelector('option[value=laz]'); if (!data.sounds && lazOpt) lazOpt.disabled = true;
     // the default: the hash, else what this browser last chose, else the recordings when the build has them (the local build), else off
     let saved = null; try { saved = JSON.parse(localStorage.getItem('roping-sound') || 'null'); } catch (e) { /* storage blocked */ }
-    const variant0 = soundWant || (saved && saved.variant) || (data.sounds ? 'laz' : 'off');
+    const variant0 = soundWant || (saved && saved.variant) || (data.sounds ? 'laz' : 'synth');   // sound on by default: the recordings in the local build, the synth elsewhere
     sel.value = variant0 === 'laz' && !data.sounds ? 'synth' : variant0;
     const apply = () => { setSound(sel.value); try { localStorage.setItem('roping-sound', JSON.stringify({ variant: sel.value })); } catch (e) { /* session only */ } };
     sel.addEventListener('change', apply);
