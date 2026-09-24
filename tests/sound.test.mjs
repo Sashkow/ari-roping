@@ -18,12 +18,14 @@ test('her pitch carries the slip: up when the coils push, down when they brake, 
   assert.equal(humHz(22, 'bus', 40, 40), humHz(22, 'bus'), 'the bus has no slip');
 });
 
-test('loudness follows the coil force, the jaws add a little, and her tips are about 25 dB below the bus', () => {
+test('loudness follows the coil force, the jaws add a little, and her tips are about 25 dB below the bus', async () => {
   assert.ok(humGain(40, 0, 40, 'bus') > humGain(10, 0, 40, 'bus'));
   assert.ok(humGain(40, 100, 40, 'bus') > humGain(40, 0, 40, 'bus'));
   const ratio = humGain(40, 0, 40, 'ari') / humGain(40, 0, 40, 'bus');
   assert.ok(20 * Math.log10(ratio) < -20 && 20 * Math.log10(ratio) > -30, `${(20 * Math.log10(ratio)).toFixed(1)} dB`);
   assert.equal(CHOPPER_HZ, 900);
+  const { INVERTER_HZ, INVERTER_LEVEL } = await import('../src/sound.js');
+  assert.ok(INVERTER_HZ >= 2000 && INVERTER_HZ <= 8000 && 20 * Math.log10(INVERTER_LEVEL / 0.06) < -20, 'the inverter sits high and well under the hum');
 });
 
 test('a seamless loop: the cut is shorter by the fade, and the seam is a crossfade of head and tail', async () => {

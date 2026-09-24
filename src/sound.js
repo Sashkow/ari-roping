@@ -57,7 +57,9 @@ export function doppler(dx, vListener, vSource, c = 343) {
   return (c + n * vListener) / (c + n * vSource);
 }
 
-export const CHOPPER_HZ = 900;
+export const CHOPPER_HZ = 900;      // the bus: a Ganz chopper's note, as recorded
+export const INVERTER_HZ = 3600;    // her tips: a modern inverter's switching frequency; sines only, with sidebands at +/- twice the motor frequency, so it shimmers with speed
+export const INVERTER_LEVEL = 0.0025;   // against a hum of up to 0.06: about 28 dB under it
 export const RECORDED_WHINE_HZ = 485;     // the reducer recording's pitch, taken as the bus at cruise (22 m/s)
 
 /** One sounding thing (her tips, or the trolleybus): a hum that follows its speed and a chopper on one note, in one stage, synth or recordings. */
@@ -70,6 +72,9 @@ function makeVoice(ctx, out, stageName, coilRating, buffers) {
   chopOsc.type = 'square'; chopOsc.frequency.value = CHOPPER_HZ; chopOsc.connect(chop); chop.connect(wob); wob.connect(master); chopOsc.start();
   wob.gain.value = 1; wobble.frequency.value = 50; wobbleGain.gain.value = 0.15; wobble.connect(wobbleGain); wobbleGain.connect(wob.gain); wobble.start();
   chop.gain.value = 0;
+  // her inverter: a carrier sine and two sidebands, through a gentle low-pass so nothing above it bites; used in both variants (the recording's chopper is the bus's)
+  const inv = ctx.createGain(), invLp = ctx.createBiquadFilter(); invLp.type = 'lowpass'; invLp.frequency.value = 6000; inv.connect(invLp); invLp.connect(master); inv.gain.value = 0;
+  const invOsc = [0, 1, -1].map((side) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; g.gain.value = side === 0 ? 0.6 : 0.2; o.connect(g); g.connect(inv); o.start(); return { o, side }; });
   // recordings, looped over their steady middle
   let motorSrc = null, chopSrc = null; const motorGain = ctx.createGain(), chopGain2 = ctx.createGain(), lazHp = ctx.createBiquadFilter();
   lazHp.type = 'highpass'; lazHp.frequency.value = 80; motorGain.connect(lazHp); lazHp.connect(master); chopGain2.connect(master); motorGain.gain.value = 0; chopGain2.gain.value = 0;
@@ -102,15 +107,18 @@ function makeVoice(ctx, out, stageName, coilRating, buffers) {
       coilAvg += (Math.abs(fCoilNow) - coilAvg) * k; jawAvg += (Math.abs(fJawNow) - jawAvg) * k;
       coilSigned += (fCoilNow - coilSigned) * k; const g_fCoilSigned = coilSigned;              // signed, for the slip: the pitch rises with a push, falls with a brake
       const f = humHz(u, stageName, on ? (g_fCoilSigned ?? 0) : 0, coilRating), gain = on ? humGain(coilAvg, jawAvg, coilRating, stageName) : 0;
-      const chopper = on ? (0.3 + 0.7 * Math.min(1, coilAvg / coilRating)) * CHOP_LEVEL[stageName] : 0;
+      const chopper = on && stageName === 'bus' ? (0.3 + 0.7 * Math.min(1, coilAvg / coilRating)) * CHOP_LEVEL[stageName] : 0;
+      const inverter = on && stageName === 'ari' ? (0.4 + 0.6 * Math.min(1, coilAvg / coilRating)) * INVERTER_LEVEL : 0;
       const synth = variant === 'synth' || !hasLaz;
       for (const { o, n } of harmonics) ramp(o.frequency, Math.min(8000, f * n * dop), 0.02);
       ramp(chopOsc.frequency, CHOPPER_HZ * dop, 0.02);
+      for (const { o, side } of invOsc) ramp(o.frequency, Math.max(200, (INVERTER_HZ + side * 2 * f) * dop), 0.02);   // sidebands at +/- twice the motor frequency
+      ramp(inv.gain, inverter, 0.1);
       ramp(hum.gain, synth ? gain : 0, 0.1); ramp(chop.gain, synth ? chopper : 0, 0.1);
       if (hasLaz) {
         const rate = stageName === 'ari' ? f / RECORDED_WHINE_HZ : Math.abs(u) / 22;               // the recording is the bus at cruise as recorded
         ramp(motorSrc.playbackRate, Math.max(0.05, rate) * dop, 0.02); ramp(chopSrc.playbackRate, dop, 0.02);
-        ramp(motorGain.gain, synth ? 0 : gain * 2.0, 0.1); ramp(chopGain2.gain, synth ? 0 : chopper * 1.5, 0.1);
+        ramp(motorGain.gain, synth ? 0 : gain * 2.0, 0.1); ramp(chopGain2.gain, synth || stageName === 'ari' ? 0 : chopper * 1.5, 0.1);
       }
       const j = Math.abs(fJawNow);
       if (j < 15) jawArmed = true;
