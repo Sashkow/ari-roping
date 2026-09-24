@@ -89,6 +89,17 @@ peak at 270–320 N of 450), makes the hard brake with the pole pull slip (833 N
 kills it the gymnast's way (poles short near the top of each swing, long through the
 bottom). *Earlier form:* a single grip limit on a kinematic tip, set impossibly high;
 kept as the `kinematic-baseline-2026-09-23` tag and `game-kinematic.html`.
+*What the tip is (author, 2026-09-24):* one mechanism in three states. A **C** for
+riding: lips in the wire's overhang band, the 3 mm between the groove line where the
+hanger clamps stop and the wire's equator, so the hang is by shape and every clamp is
+passed; the lips in five segments that a clamp wedges open one at a time, passively. A
+**ring** for turning: closed over the top, the wire as axle, so the full revolution
+between the wires needs no wheel (~1000 N, 8 J a turn); opened to the C before a
+support. **Open** for the catch. Consequences for the model: `hang_limit` is the lips'
+strength, not friction; the shoe is the coil pads' light contact, μ 0.2 on the pole
+load as modelled; the supports cost the tips nothing, and the span-wire zone of task
+4.2 is about the cross-span above the wire, not the clamp on it. Drawn on the page
+"Pinch Tip on Grooved Wire" (`radio_ocean/notes/demos.md`).
 
 **4. Flight is a spinning rigid body, and the hoop is the far end of the pole control**
 (hoop: author's decision, 2026-09-20). State `(x, y, vx, vy, φ, L, l, curl)`, angular
