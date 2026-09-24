@@ -3,18 +3,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { humHz, humGain, CHOPPER_HZ } from '../src/sound.js';
 
-test('the hum follows speed: the bus at ~190 Hz at cruise, her tips two octaves up, both silent at rest', () => {
+test('the hum follows speed: the bus at ~190 Hz at cruise, her tips an octave up, both silent at rest', () => {
   assert.ok(Math.abs(humHz(22, 'bus') - 190) < 1e-9);
-  assert.ok(Math.abs(humHz(22, 'ari') - 733.3) < 0.1, `ari ${humHz(22, 'ari')}`);
-  assert.ok(humHz(22, 'ari') / humHz(22, 'bus') > 3.5 && humHz(22, 'ari') / humHz(22, 'bus') < 4.2);
+  assert.ok(Math.abs(humHz(22, 'ari') - 366.7) < 0.1, `ari ${humHz(22, 'ari')}`);
+  assert.ok(humHz(22, 'ari') / humHz(22, 'bus') > 1.8 && humHz(22, 'ari') / humHz(22, 'bus') < 2.1);
   assert.equal(humHz(0, 'ari'), 0);
 });
 
 test('her pitch carries the slip: up when the coils push, down when they brake, and she sings pushing from a stand', () => {
-  assert.ok(Math.abs(humHz(22, 'ari', 40, 40) - 833.3) < 0.1, 'full push at cruise');
-  assert.ok(Math.abs(humHz(22, 'ari', -40, 40) - 633.3) < 0.1, 'full regen brake at cruise');
-  assert.ok(Math.abs(humHz(0, 'ari', 40, 40) - 100) < 0.1, 'pushing from a stand');
-  assert.ok(Math.abs(humHz(-22, 'ari', -40, 40) - 833.3) < 0.1, 'moving backwards, pushing backwards: the same rise');
+  assert.ok(Math.abs(humHz(22, 'ari', 40, 40) - 416.7) < 0.1, 'full push at cruise');
+  assert.ok(Math.abs(humHz(22, 'ari', -40, 40) - 316.7) < 0.1, 'full regen brake at cruise');
+  assert.ok(Math.abs(humHz(0, 'ari', 40, 40) - 50) < 0.1, 'pushing from a stand');
+  assert.ok(Math.abs(humHz(-22, 'ari', -40, 40) - 416.7) < 0.1, 'moving backwards, pushing backwards: the same rise');
   assert.equal(humHz(22, 'bus', 40, 40), humHz(22, 'bus'), 'the bus has no slip');
 });
 

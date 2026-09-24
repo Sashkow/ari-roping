@@ -2,7 +2,7 @@
 // The sound of her tips and of the trolleybus (2026-09-24). Two variants of the same pair of sounds a ZiU/Ganz trolleybus makes:
 // a traction-motor hum whose pitch follows speed, and a chopper that sings one fixed note (900 Hz on the
 // Ganz-GVM) whatever the speed. Two voices: the trolleybus in the game at the `bus` stage, as it is, at its own
-// speed, panned to where it is; and her tips at the `ari` stage: the hum two octaves up (her coils' pole pitch is centimetres, the bus reaches its speed
+// speed, panned to where it is; and her tips at the `ari` stage: the hum an octave up (her coils' pole pitch is centimetres, the bus reaches its speed
 // through a wheel and a gearbox), the whole thing far quieter (40 N of force, not kilonewtons), the
 // chopper note kept, since a switching frequency is a design choice, not a size.
 //   synth   Web Audio oscillators: the hum from a few harmonics, the chopper from a square wave with a
@@ -13,6 +13,7 @@
 // Driven from the frame loop: update(game) reads tip speed and the coil and jaw forces of the last step.
 // Pure functions first, so node can test the mapping without an AudioContext.
 
+export const POLE_PITCH = 0.06;    // m, the tip coils' pole pitch: the hum is the field speed over it (author, 2026-09-24: 370 Hz at cruise, a hum; 3 cm gave 733, a whistle)
 export const SLIP_FULL = 3.0;     // m/s the travelling field runs ahead of (or behind) the tips at the coils' full force: an induction motor on a solid secondary
 
 /**
@@ -23,7 +24,7 @@ export const SLIP_FULL = 3.0;     // m/s the travelling field runs ahead of (or 
 export function humHz(u, stage, fCoil = 0, coilRating = 40) {
   if (stage !== 'ari') return Math.abs(u) * (190 / 22);
   const along = u >= 0 ? fCoil : -fCoil;                                   // force along the motion: pushing > 0, braking < 0
-  return Math.max(0, Math.abs(u) + SLIP_FULL * along / coilRating) / 0.03;
+  return Math.max(0, Math.abs(u) + SLIP_FULL * along / coilRating) / POLE_PITCH;
 }
 
 /** Loudness 0..1 of the hum from the coil force (N) and the coil rating; the jaws add a little grind. */
