@@ -95,9 +95,10 @@ hanger clamps stop and the wire's equator, so the hang is by shape and every cla
 passed; the lips in five segments that a clamp wedges open one at a time, passively. A
 **ring** for turning: closed over the top, the wire as axle, so the full revolution
 between the wires needs no wheel (~1000 N, 8 J a turn); opened to the C before a
-support. **Open** for the catch. The coils share the segments and the shape: C-cores round
-the wire's lower three quarters (a tubular induction motor open at the top), closed to a
-full one in the ring state. Consequences for the model: `hang_limit` is the lips'
+support. **Open** for the catch. The coils share the segments and the shape: saddle coils,
+each turn three quarters round the wire, along it, three quarters back and along it
+back, a tubular induction motor's ring coil cut open at the top for the clamps and
+closed to a full one in the ring state. Consequences for the model: `hang_limit` is the lips'
 strength, not friction; the shoe is the coil pads' light contact, μ 0.2 on the pole
 load as modelled; the supports cost the tips nothing, and the span-wire zone of task
 4.2 is about the cross-span above the wire, not the clamp on it. Drawn on the page
