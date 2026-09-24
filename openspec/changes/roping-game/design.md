@@ -92,7 +92,10 @@ kept as the `kinematic-baseline-2026-09-23` tag and `game-kinematic.html`.
 *What the tip is (author, 2026-09-24):* one mechanism in three states. A **C** for
 riding: lips in the wire's overhang band, the 3 mm between the groove line where the
 hanger clamps stop and the wire's equator, so the hang is by shape and every clamp is
-passed; the lips in five segments that a clamp wedges open one at a time, passively. A
+passed; the lips in five segments that a clamp wedges open one at a time, passively (the
+precedent: Hydro-Québec's LineRanger, whose wheels on hinged arms swing round a
+suspension clamp one at a time without the robot stopping; hers open sideways under the
+wire, and the clamps being all alike lets a spring and a wedge do what its actuators do). A
 **ring** for turning: closed over the top, the wire as axle, so the full revolution
 between the wires needs no wheel (~1000 N, 8 J a turn); opened to the C before a
 support. **Open** for the catch. The coils share the segments and the shape: saddle coils,
