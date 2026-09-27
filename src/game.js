@@ -18,9 +18,9 @@ export function makeGame(physics, level, opts = {}) {
 
   const g = {
     t: 0, mode: 'wire', over: null, won: false, world, P, F,
-    st: { th: steadyAngle(level.start.speed, L_MAX), om: 0, u: level.start.speed, x: 0, tPrev: 0 }, l: L_MAX, dl: 0,
+    st: { th: steadyAngle(opts.startSpeed ?? level.start.speed, L_MAX), om: 0, u: opts.startSpeed ?? level.start.speed, x: 0, tPrev: 0 }, l: L_MAX, dl: 0,
     fl: null, out: null, aP: 0, saturated: false, hardCatch: false, catches: 0, releases: 0,
-    startSpeed: level.start.speed, airTime: 0, apex: 0, turns: 0, passedAt: null,
+    startSpeed: opts.startSpeed ?? level.start.speed, airTime: 0, apex: 0, turns: 0, passedAt: null,
     arcUntil: -1, arcs: 0, events: [], reaching: false, balance: null, assistOn: !!(level.assists && level.assists.balance),
     crossSpanOn: false, spanHits: 0, spark: null, lastSpanHit: { k: null, t: -9 },
   };

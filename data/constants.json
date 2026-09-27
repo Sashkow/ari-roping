@@ -1,6 +1,6 @@
 {
  "source": "radio_ocean/notes/scenes/ari-roping/configs/baseline.yaml",
- "source_sha256": "94ed7b6c3a863ec9eee136367bc3bfa755d574164d9620e60e6182a5dafd684a",
+ "source_sha256": "28013205efda6ee86e57087bbc68b6a31811a73a1a6c089ba5faf56f62b80d8e",
  "physics": {
   "sim": {
    "g": 9.81,

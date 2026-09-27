@@ -12,6 +12,8 @@ HEAD = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta
 PAGES = [  # (source, published name, title, one line)
     (HERE / "dist" / "roping-ari.html", "game.html", "Roping Ari, the Game",
      "Ride the two trolleybus wires at 79 km/h on her poles and get over the trolleybus ahead. Keyboard. Press A to watch it done once."),
+    (HERE / "dist" / "cross-span.html", "cross-span.html", "Roping Ari: the cross-spans",
+     "From a standstill to the 6th support with the cross-spans in place: the steady ride, the fastest, and the least effort, each catching the wire in every 35 m section."),
     (HERE / "kept" / "roping-ari-kinematic-2026-09-23.html", "game-kinematic.html", "Roping Ari, the Game, kinematic tips",
      "The game as built on 2026-09-23, before her tips became a mass on the wire: infinite grip, no friction, 1 kg poles. Kept playable."),
     (DEMOS / "ari-roping-pulled.html", "at-speed.html", "Roping Ari at Speed",
@@ -41,7 +43,7 @@ def main():
     demos = json.loads((HERE / "kept" / "demos-kinematic-2026-09-23.json").read_text())      # the demos of the kept kinematic build, frozen with it
     items = [f'      <li><a href="game-kinematic.html#demo={k}">{d["title"]}</a> <span>{d["kind"]}: {d["what"].split(" (")[0]}</span></li>' for k, d in demos.items()]
     now = json.loads((HERE / "data" / "demos.json").read_text())                                     # the demos of the current build
-    items_now = [f'      <li><a href="game.html#demo={k}">{d["title"]}</a> <span>{d["kind"]}: {d["what"].split(" (")[0]}</span></li>' for k, d in now.items()]
+    items_now = [f'      <li><a href="game.html#demo={k}">{d["title"]}</a> <span>{d["kind"]}: {d["what"].split(" (")[0]}</span></li>' for k, d in now.items() if not d.get("group")]
     index = (HERE / "site_index.html").read_text().replace("<!--CARDS-->", "\n".join(cards)).replace("<!--DEMOS-NOW-->", "\n".join(items_now)).replace("<!--DEMOS-->", "\n".join(items))
     (OUT / "index.html").write_text(index)
     (OUT / ".nojekyll").write_text("")

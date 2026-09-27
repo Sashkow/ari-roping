@@ -3,6 +3,7 @@
   "title": "Spun down",
   "kind": "badge",
   "what": "the hoop, then opened, then a soft catch",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 58,
@@ -132,6 +133,7 @@
   "title": "Held it",
   "kind": "badge",
   "what": "a hard catch (over the absorption limit) survived under the body-load limit",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 58,
@@ -228,6 +230,7 @@
   "title": "Through the arc",
   "kind": "badge",
   "what": "arced between the wires, stayed on, and still passed the bus",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 58,
@@ -404,6 +407,7 @@
   "title": "Short-pole flight",
   "kind": "badge",
   "what": "the lifted gait held for 2 s at the shortest pole length (free practice, no trolleybus: the bus ended the 1.5 s run of 2026-09-23, not the gait)",
+  "group": null,
   "start": "lifted",
   "params": {
    "speed": 26,
@@ -514,6 +518,7 @@
   "title": "Hoop over the roof",
   "kind": "badge",
   "what": "curled into the hoop with her head above the trolleybus",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 58,
@@ -651,6 +656,7 @@
   "title": "Kiss",
   "kind": "badge",
   "what": "a catch with under 0.5 m/s of speed along the poles to absorb",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 45,
@@ -774,6 +780,7 @@
   "title": "Swoop",
   "kind": "line",
   "what": "REL → SPREAD → CATCH → LIFTED before the swing back (soft or hard catch: that is Kiss / Held it)",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 52,
@@ -936,6 +943,7 @@
   "title": "Swoop below the wire",
   "kind": "line",
   "what": "REL → SPREAD → CATCH → LIFTED with her head never above the wires: a wing hop in the space under them, no trolleybus in the way (free practice)",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 24,
@@ -1003,6 +1011,7 @@
   "title": "Rolled up",
   "kind": "line",
   "what": "REL → CURL → OPEN → SPREAD → CATCH in one flight",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 58,
@@ -1180,6 +1189,7 @@
   "title": "One breath",
   "kind": "line",
   "what": "PULL → REL → CATCH → PASS in under 3 s",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 58,
@@ -1278,6 +1288,7 @@
   "title": "Full repertoire",
   "kind": "line",
   "what": "REL, CURL, OPEN, SPREAD, CATCH and LIFTED, in any order, within 6 s",
+  "group": null,
   "start": "pulled",
   "params": {
    "release": 58,
@@ -1478,6 +1489,296 @@
     "note": "swung back behind her tips",
     "x": 189.75,
     "y": -2.39
+   }
+  ]
+ },
+ "cross_ride": {
+  "title": "Clear of the spans",
+  "kind": "cross",
+  "what": "from a standstill to the 6th support on the wire, never meeting a cross-span: the steady ride",
+  "group": "cross-span",
+  "start": "still",
+  "params": {
+   "target": 15
+  },
+  "closes": true,
+  "numbers": {
+   "time_s": 16.13,
+   "top_kmh": 55,
+   "span_hits": 0,
+   "sections": "7/7"
+  },
+  "note": "On the wire her poles and body hang below it, and the cross-spans run 55 cm above it, so riding never meets one: they are a hazard only for a hop.",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 5.834,
+    "name": "BACK",
+    "speed": 55,
+    "note": "swung back behind her tips",
+    "x": 61.28,
+    "y": -2.4
+   },
+   {
+    "t": 8.896,
+    "name": "BACK",
+    "speed": 55,
+    "note": "swung back behind her tips",
+    "x": 108.49,
+    "y": -2.4
+   },
+   {
+    "t": 11.931,
+    "name": "BACK",
+    "speed": 55,
+    "note": "swung back behind her tips",
+    "x": 155.27,
+    "y": -2.4
+   },
+   {
+    "t": 14.938,
+    "name": "BACK",
+    "speed": 55,
+    "note": "swung back behind her tips",
+    "x": 201.63,
+    "y": -2.4
+   },
+   {
+    "t": 18.628,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 234.21,
+    "y": -2.4
+   },
+   {
+    "t": 21.978,
+    "name": "BACK",
+    "speed": 0,
+    "note": "swung back behind her tips",
+    "x": 230.02,
+    "y": -2.4
+   },
+   {
+    "t": 25.266,
+    "name": "BACK",
+    "speed": -3,
+    "note": "swung back behind her tips",
+    "x": 225.99,
+    "y": -2.4
+   },
+   {
+    "t": 28.555,
+    "name": "BACK",
+    "speed": -4,
+    "note": "swung back behind her tips",
+    "x": 221.63,
+    "y": -2.4
+   },
+   {
+    "t": 32.373,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 222.38,
+    "y": -2.4
+   },
+   {
+    "t": 35.543,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 223.95,
+    "y": -2.4
+   },
+   {
+    "t": 38.714,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 225.53,
+    "y": -2.4
+   }
+  ]
+ },
+ "cross_fast": {
+  "title": "Fastest, every section",
+  "kind": "cross",
+  "what": "the least time from a standstill to the 6th support, catching the wire in every 35 m section and never meeting a cross-span: full power on the wire, or hops inside each section",
+  "group": "cross-span",
+  "start": "still",
+  "params": {
+   "strategy": "ride",
+   "release": 35,
+   "hard": false
+  },
+  "closes": true,
+  "numbers": {
+   "time_s": 11.03,
+   "top_kmh": 125,
+   "span_hits": 0,
+   "sections": "7/7",
+   "hops": 0
+  },
+  "note": "Full thrust the whole way wins. The search also tried a brake-and-release hop inside every section; none closed: each hop cost more speed than the flight gave back, and the catch either missed a section or a pole met the next cross-span.",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 16.092,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 295.19,
+    "y": -2.4
+   },
+   {
+    "t": 19.309,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 296.79,
+    "y": -2.4
+   },
+   {
+    "t": 22.522,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 298.37,
+    "y": -2.4
+   },
+   {
+    "t": 25.732,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 299.97,
+    "y": -2.4
+   },
+   {
+    "t": 28.94,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 301.56,
+    "y": -2.4
+   },
+   {
+    "t": 32.143,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 303.14,
+    "y": -2.4
+   },
+   {
+    "t": 35.344,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 304.73,
+    "y": -2.4
+   },
+   {
+    "t": 38.543,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 306.32,
+    "y": -2.4
+   }
+  ]
+ },
+ "cross_easy": {
+  "title": "Least effort",
+  "kind": "cross",
+  "what": "the least energy from a standstill to the 6th support within a minute, every section caught, no cross-span met: coil work plus the work of pulling the poles in",
+  "group": "cross-span",
+  "start": "still",
+  "params": {
+   "target": 7
+  },
+  "closes": true,
+  "numbers": {
+   "effort_kJ": 2.41,
+   "time_s": 28.28,
+   "top_kmh": 29,
+   "span_hits": 0
+  },
+  "note": "Held speeds of 4 to 15 m/s were tried; the cheapest was 7 m/s (2.4 kJ). Faster costs more in air drag and in the push to get up to speed; slower costs more too, because the coils switch on and off around the held speed and set her swinging.",
+  "ended": "time up",
+  "tokens": [
+   {
+    "t": 3.776,
+    "name": "BACK",
+    "speed": 29,
+    "note": "swung back behind her tips",
+    "x": 22.31,
+    "y": -2.4
+   },
+   {
+    "t": 6.889,
+    "name": "BACK",
+    "speed": 29,
+    "note": "swung back behind her tips",
+    "x": 47.42,
+    "y": -2.4
+   },
+   {
+    "t": 9.997,
+    "name": "BACK",
+    "speed": 29,
+    "note": "swung back behind her tips",
+    "x": 72.49,
+    "y": -2.4
+   },
+   {
+    "t": 13.101,
+    "name": "BACK",
+    "speed": 29,
+    "note": "swung back behind her tips",
+    "x": 97.53,
+    "y": -2.4
+   },
+   {
+    "t": 16.201,
+    "name": "BACK",
+    "speed": 29,
+    "note": "swung back behind her tips",
+    "x": 122.54,
+    "y": -2.4
+   },
+   {
+    "t": 19.298,
+    "name": "BACK",
+    "speed": 29,
+    "note": "swung back behind her tips",
+    "x": 147.52,
+    "y": -2.4
+   },
+   {
+    "t": 22.391,
+    "name": "BACK",
+    "speed": 29,
+    "note": "swung back behind her tips",
+    "x": 172.47,
+    "y": -2.4
+   },
+   {
+    "t": 25.481,
+    "name": "BACK",
+    "speed": 29,
+    "note": "swung back behind her tips",
+    "x": 197.39,
+    "y": -2.4
+   },
+   {
+    "t": 30.506,
+    "name": "BACK",
+    "speed": 2,
+    "note": "swung back behind her tips",
+    "x": 224.89,
+    "y": -2.4
    }
   ]
  }

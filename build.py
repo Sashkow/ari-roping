@@ -66,14 +66,15 @@ def main():
                 assert ok(v) or (isinstance(v, list) and all(ok(x) for x in v)), f"level {lv.get('name')}: {section}.{k} = {v!r} is not a number"
     demos_file = DATA / "demos.json"                # written by tools/demo.mjs; the page replays each demo from its plan and marks its key moments
     demos = json.loads(demos_file.read_text()) if demos_file.exists() else {}
-    data = dict(physics=constants["physics"], constants_sha256=constants["source_sha256"], levels=levels, ghosts=ghosts, demos=demos)
+    main_demos = {k: d for k, d in demos.items() if not d.get("group")}   # grouped demos get their own page
+    data = dict(physics=constants["physics"], constants_sha256=constants["source_sha256"], levels=levels, ghosts=ghosts, demos=main_demos)
     shell = (SRC / "page.html").read_text()
     code = bundle()
     DIST.mkdir(exist_ok=True)
     out = DIST / "roping-ari.html"
     out.write_text(shell.replace("/*DATA*/null", json.dumps(data, separators=(",", ":")), 1).replace("/*BUNDLE*/", code, 1))
     size = out.stat().st_size
-    print(f"{out.relative_to(HERE)}: {size // 1024} KB, {len(levels)} level(s), {len(ghosts)} ghost(s), {len(demos)} demo(s)")
+    print(f"{out.relative_to(HERE)}: {size // 1024} KB, {len(levels)} level(s), {len(ghosts)} ghost(s), {len(main_demos)} demo(s)")
     # a local-only build with the trolleybus recordings embedded (local/sounds/motor.wav, chopper.wav): not published, the recordings' authors are unknown
     sounds = HERE / "local" / "sounds"
     if (sounds / "motor.wav").exists() and (sounds / "chopper.wav").exists():
@@ -82,6 +83,13 @@ def main():
         out2 = DIST / "roping-ari-laz.html"
         out2.write_text(shell.replace("/*DATA*/null", json.dumps(data, separators=(",", ":")), 1).replace("/*BUNDLE*/", code, 1))
         print(f"{out2.relative_to(HERE)}: {out2.stat().st_size // 1024} KB, with the recordings (local only)")
+    # the cross-span page (task 4.5): the same game with only the cross-span demos, opening on the first
+    cross = {k: d for k, d in demos.items() if d.get("group") == "cross-span"}
+    if cross:
+        page = dict(title="Roping Ari: the cross-spans", listTitle="Cross-span demos", listLine="from a standstill, the trolleybus off, the cross-spans on, no wing: to the 6th support, catching the wire in every 35 m section", defaultDemo=next(iter(cross)))
+        out3 = DIST / "cross-span.html"
+        out3.write_text(shell.replace("/*DATA*/null", json.dumps({**{k: v for k, v in data.items() if k != "sounds"}, "demos": cross, "page": page}, separators=(",", ":")), 1).replace("/*BUNDLE*/", code, 1))
+        print(f"{out3.relative_to(HERE)}: {out3.stat().st_size // 1024} KB, {len(cross)} demo(s)")
     if size > BUDGET:
         sys.exit(f"over the {BUDGET // 1000} KB budget")
 

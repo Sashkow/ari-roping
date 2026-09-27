@@ -20,12 +20,12 @@ const T_MAX = 14;
 
 /** One run of a candidate with one parameter set: tokens, a per-step trace, the input lines of the tab. */
 export function run(cand, p) {
-  const g = makeGame(constants.physics, level, { gait: cand.start === 'lifted' ? 'lifted' : 'pulled' });
+  const g = makeGame(constants.physics, level, { gait: cand.start === 'lifted' ? 'lifted' : 'pulled', startSpeed: cand.start === 'still' ? 0 : undefined });
   const cmds = makeCommands({ ...level.input, balance: level.balance }), dt = level.tuning.step, tokens = makeTokens(g, level), st = freshState();
   if (cand.start === 'lifted') cmds.state.wingOn = true;
   const engage = rad(level.balance.engage_deg), toks = [], trace = [], inputs = [];
   let prevKeys = {}, cmd = cmds.update({}, dt);
-  while (!g.over && g.t < T_MAX) {
+  while (!g.over && g.t < (cand.tMax ?? T_MAX) && !(cand.done && cand.done(g, st))) {
     const keys = cand.plan(g, p, st) || {};
     for (const k of new Set([...Object.keys(prevKeys), ...Object.keys(keys)])) if (!!keys[k] !== !!prevKeys[k]) inputs.push(`${g.t.toFixed(3)}  ${k} ${keys[k] ? 'on' : 'off'}`);
     prevKeys = { ...keys };
@@ -35,7 +35,7 @@ export function run(cand, p) {
     toks.push(...tokens.step(cmd));
     const [hx, hy] = g.head(), [, vy] = g.velocity(), o = g.out, geo = g.world.geom();
     const liftShare = g.mode === 'wire' && o ? o.lift / g.P.W : 0, spread = !!(g.shown || cmd).spread && !g.arcing();
-    trace.push({ t: g.t, dt, mode: g.mode, spread, vy, l: g.poleLength(), tension: o ? o.tension : 0, liftShare, curl: g.fl ? g.fl.curl || 0 : 0,
+    trace.push({ t: g.t, dt, mode: g.mode, spread, vy, tx: g.tips()[0], u: g.mode === 'wire' ? g.st.u : 0, fCoil: g.mode === 'wire' && o ? o.fCoil || 0 : 0, dl: g.mode === 'wire' ? g.dl : 0, l: g.poleLength(), tension: o ? o.tension : 0, liftShare, curl: g.fl ? g.fl.curl || 0 : 0,
                  lifted: g.mode === 'wire' && spread && g.st.th > engage && liftShare > 0.6, overBus: g.world.bus.on && hx > geo.rear && hx < geo.front && hy > g.world.roofY,
                  catchAlong: g.catchAlong != null && trace.length && trace[trace.length - 1].mode === 'air' && g.mode === 'wire' ? g.catchAlong : null });
   }
@@ -55,10 +55,11 @@ for (const id of ids) {
   let best = null;                                   // the whole grid: the closing set with the best score, else the nearest miss
   for (const p of grid(cand.params)) {
     const r = run(cand, p), c = cand.closes(r.toks, r.g, r.trace), rank = (c.ok ? 1e6 : 0) + (c.score ?? 0);
+    if (process.env.DEMO_ALL) console.log(`  ${c.ok ? 'ok ' : '-- '} ${JSON.stringify(p)}  ${JSON.stringify(c)}`);
     if (!best || rank > best.rank) best = { p, r, c, rank };
   }
   const { p, r, c } = best, nums = Object.fromEntries(Object.entries(c).filter(([k]) => !['ok', 'note', 'score'].includes(k)));
-  results[id] = { title: cand.title, kind: cand.kind, what: cand.what, start: cand.start || 'pulled', params: p, closes: c.ok, numbers: nums, note: c.note || '', ended: r.g.over || 'time up',
+  results[id] = { title: cand.title, kind: cand.kind, what: cand.what, group: cand.group || null, start: cand.start || 'pulled', params: p, closes: c.ok, numbers: nums, note: c.note || '', ended: r.g.over || 'time up',
                   tokens: r.toks.map((k) => ({ ...k })) };
   writeFileSync(new URL(`out/demos/${id}.tab`, ROOT), tab(id, cand, p, r));
   console.log(`${c.ok ? 'closes      ' : 'does not close'}  ${id.padEnd(18)} ${JSON.stringify(nums)}  ${c.note || ''}`);

@@ -69,15 +69,17 @@ export function makePhysics(physics, tipsOverride = {}) {
     const sgn = SMOOTH_U > 0 ? Math.max(-1, Math.min(1, u / SMOOTH_U)) : Math.sign(u);
     const fShoe = -MU * Math.abs(tPrev) * sgn;
     const fCmd = typeof cmd === 'object' ? cmd.accel * denom - t0 * sin - fShoe : cmd;
-    const coil = COIL * (FADE > 0 ? Math.min(1, Math.abs(u) / FADE) : 1);
+    // the coils push at full strength from a standstill (an induction motor runs its field at any speed); only braking by them
+    // (regeneration) needs motion, so the fade applies to force against the tips' motion (2026-09-27)
+    const fade = FADE > 0 ? Math.min(1, Math.abs(u) / FADE) : 1, cPlus = u < 0 ? COIL * fade : COIL, cMinus = u > 0 ? COIL * fade : COIL;
     // the jaws are friction: they only oppose the tips' motion, whichever way along the wire that is, and they close only when
     // the command asks to slow down (a wished acceleration against the motion, or a force against it). No key (a wish for zero
     // acceleration) rides on the coils alone: held by the jaws the tips would be a fixed bar and a swing could never drain into
     // them (14 loops after a catch with the jaws holding, 3 without). The coils push either way.
     const want = typeof cmd === 'object' ? cmd.accel : cmd, braking = want * u < 0 || (typeof cmd === 'object' ? !!cmd.hold : true), grip = braking ? GRIP : 0;
-    const [lo, hi] = u >= 0 ? [-(coil + grip), coil] : [-coil, coil + grip];
+    const [lo, hi] = u >= 0 ? [-(cMinus + grip), cPlus] : [-cMinus, cPlus + grip];
     const fApplied = Math.max(lo, Math.min(hi, fCmd));
-    const fCoil = Math.max(-coil, Math.min(coil, fApplied));
+    const fCoil = Math.max(-cMinus, Math.min(cPlus, fApplied));
     return { aP: (fApplied + fShoe + t0 * sin) / denom, fCmd, fApplied, fCoil, fJaw: fApplied - fCoil, fShoe, slip: fCmd - fApplied };
   }
 

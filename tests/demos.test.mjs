@@ -18,9 +18,9 @@ const file = new URL('../data/demos.json', import.meta.url), recorded = existsSy
 
 test('every recorded demo replays to the same tokens at the same times', { skip: !Object.keys(recorded).length && 'no data/demos.json: run node tools/demo.mjs' }, () => {
   for (const [id, d] of Object.entries(recorded)) {
-    const g = makeGame(physics, level, { gait: d.start === 'lifted' ? 'lifted' : 'pulled' }), cmds = makeCommands({ ...level.input, balance: level.balance }), dt = level.tuning.step, tk = makeTokens(g, level), st = freshState(), toks = [];
+    const c = demos[id], g = makeGame(physics, level, { gait: d.start === 'lifted' ? 'lifted' : 'pulled', startSpeed: d.start === 'still' ? 0 : undefined }), cmds = makeCommands({ ...level.input, balance: level.balance }), dt = level.tuning.step, tk = makeTokens(g, level), st = freshState(), toks = [];
     if (d.start === 'lifted') cmds.state.wingOn = true;
-    while (!g.over && g.t < 14) { const cmd = cmds.update(demos[id].plan(g, d.params, st), dt); g.step(cmd, dt); if (g.won && g.over) { g.over = null; g.passedAt = Infinity; } if (g.events.includes('arc')) cmds.cancelSpread(); toks.push(...tk.step(cmd)); }
+    while (!g.over && g.t < (c.tMax ?? 14) && !(c.done && c.done(g, st))) { const cmd = cmds.update(demos[id].plan(g, d.params, st), dt); g.step(cmd, dt); if (g.won && g.over) { g.over = null; g.passedAt = Infinity; } if (g.events.includes('arc')) cmds.cancelSpread(); toks.push(...tk.step(cmd)); }
     assert.deepEqual(toks.map((k) => [k.t, k.name]), d.tokens.map((k) => [k.t, k.name]), `${id}: the replay should reproduce the recorded moments`);
   }
 });

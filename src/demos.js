@@ -39,6 +39,23 @@ function goLifted(g, k, p, st) {
   if (!st.wingOn && g.st.th > rad(p.wingAt ?? 40) && g.st.om > 0) { k.wing = true; st.wingOn = true; }
 }
 
+
+// ---- cross-span demos (task 4.5)
+const CROSS_GOAL = 6;
+function crossSetup(g) { if (g.world.bus.on) g.world.setBus(false); g.crossSpanOn = true; }
+/** Past the goal on the wire: brake to a stop (the run ends there). */
+const crossPast = (g) => g.mode === 'wire' && g.st.x >= g.world.spanX(CROSS_GOAL);
+const crossStopped = (g) => crossPast(g) && Math.abs(g.st.u) < 0.3 && Math.abs(g.st.om) < 0.3;
+/** Time to the goal, sections caught on the way, top speed, and effort: coil work spent plus the work of pulling the poles in under load. */
+function crossResult(g, trace) {
+  const W = g.world, goal = W.spanX(CROSS_GOAL), reach = trace.findIndex((r) => r.tx >= goal), upto = reach < 0 ? trace : trace.slice(0, reach + 1);
+  const caught = new Set(upto.filter((r) => r.mode === 'wire').map((r) => Math.ceil((r.tx - 10) / W.SPAN)));
+  let all = true; for (let k = 0; k <= CROSS_GOAL; k++) if (!caught.has(k)) all = false;
+  let effort = 0, top = 0; for (const r of upto) { effort += (Math.max(0, r.fCoil * r.u) + Math.max(0, -r.dl * r.tension)) * r.dt; top = Math.max(top, r.u); }
+  const done = reach >= 0 && all && g.spanHits === 0 && !g.over;
+  return { done, t: reach >= 0 ? +upto[upto.length - 1].t.toFixed(2) : null, sections: `${[...caught].filter((k) => k >= 0 && k <= CROSS_GOAL).length}/${CROSS_GOAL + 1}`, effort: +(effort / 1000).toFixed(2), top: +(top * 3.6).toFixed(0) };
+}
+
 export const demos = {
   // ---- single moments -----------------------------------------------------------------------------------
   spun_down: {
@@ -148,6 +165,44 @@ export const demos = {
     closes(toks) { const names = ['REL', 'CURL', 'OPEN', 'SPREAD', 'CATCH', 'LIFTED']; const got = names.map((n) => has(toks, n, (k) => n !== 'LIFTED' || liftedEnter(k))).filter(Boolean);
       const span = got.length === 6 ? Math.max(...got.map((k) => k.t)) - Math.min(...got.map((k) => k.t)) : null, l = has(toks, 'LIFTED', liftedEnter), h = l && after(toks, l, 'LIFTED', (k) => k.phase === 'hold');
       return { ok: got.length === 6 && span <= 6, got: got.map((k) => k.name).join(' '), span_s: span && +span.toFixed(2), held_s: h ? h.seconds : l ? 'to the end' : null, score: got.length + (h ? h.seconds : l ? 99 : 0) }; },
+  },
+
+  // ---- the cross-span (task 4.5, author 2026-09-27): from a standstill, bus off, cross-spans on, no wing and no lifted gait.
+  // The goal: her tips past the 6th support (220 m), having caught the wire at least once in every 35 m section on the way.
+  cross_ride: {
+    title: 'Clear of the spans', kind: 'cross', group: 'cross-span', start: 'still', tMax: 40,
+    what: 'from a standstill to the 6th support on the wire, never meeting a cross-span: the steady ride',
+    params: { target: [15] },
+    plan(g, p) { const k = {}; crossSetup(g); if (crossPast(g)) k.left = g.st.u > 0.2; else if (g.mode === 'wire') k.right = g.st.u < p.target; return k; },
+    done: crossStopped,
+    closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, sections: c.sections, score: c.done ? -c.t : -99,
+      note: 'On the wire her poles and body hang below it, and the cross-spans run 55 cm above it, so riding never meets one: they are a hazard only for a hop.' }; },
+  },
+  cross_fast: {
+    title: 'Fastest, every section', kind: 'cross', group: 'cross-span', start: 'still', tMax: 40,
+    what: 'the least time from a standstill to the 6th support, catching the wire in every 35 m section and never meeting a cross-span: full power on the wire, or hops inside each section',
+    params: { strategy: ['ride', 'hop'], release: [35, 50, 65], hard: [false, true] },
+    plan(g, p, st) { const k = {}; crossSetup(g); const W = g.world;
+      if (crossPast(g)) k.left = g.st.u > 0.2;
+      else if (g.mode === 'wire') {
+        const tx = g.st.x, sec = Math.ceil((tx - 10) / W.SPAN), left = W.spanX(sec) - tx;
+        if (p.strategy === 'hop' && g.st.u > 12 && st.hopped !== sec && left > 22 && left < W.SPAN - 3) { st.braking = sec; }
+        if (st.braking === sec) { k.left = true; k.hard = p.hard; if (g.st.th >= rad(p.release) && g.st.om > 0) { k.grip = true; st.hopped = sec; st.braking = null; st.target = W.spanX(sec); } }
+        else k.right = true;                                                        // otherwise full power
+      } else { const late = g.fl.x > st.target - 6; if ((g.fl.vy < 0 && g.fl.y < 1.2) || late) k.grip = true; }   // reach on the way down, or before the next support
+      return k; },
+    done: crossStopped,
+    closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, sections: c.sections, hops: toks.filter((x) => x.name === 'REL').length, score: c.done ? -c.t : -99,
+      note: 'Full thrust the whole way wins. The search also tried a brake-and-release hop inside every section; none closed: each hop cost more speed than the flight gave back, and the catch either missed a section or a pole met the next cross-span.' }; },
+  },
+  cross_easy: {
+    title: 'Least effort', kind: 'cross', group: 'cross-span', start: 'still', tMax: 60,
+    what: 'the least energy from a standstill to the 6th support within a minute, every section caught, no cross-span met: coil work plus the work of pulling the poles in',
+    params: { target: [4, 5, 6, 7, 8, 10, 12, 15] },
+    plan(g, p) { const k = {}; crossSetup(g); if (crossPast(g)) k.left = g.st.u > 0.2; else if (g.mode === 'wire') k.right = g.st.u < p.target; return k; },
+    done: crossStopped,
+    closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, effort_kJ: c.effort, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, score: c.done ? -c.effort : -99,
+      note: 'Held speeds of 4 to 15 m/s were tried; the cheapest was 7 m/s (2.4 kJ). Faster costs more in air drag and in the push to get up to speed; slower costs more too, because the coils switch on and off around the held speed and set her swinging.' }; },
   },
 };
 

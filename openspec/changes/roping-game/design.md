@@ -75,7 +75,8 @@ economy, and 1 ms costs well under a millisecond of CPU per frame.
 `radio_ocean` change `roping-tip-dynamics`).** The tips are the poles' 3 kg riding the
 wire. The throttle is still a wished tip acceleration, but it is resolved to the force that
 would give it and clamped to what the tips have: **coils**, induction, 40 N forward or
-back, fading below 3 m/s (what 0.9 kg of motor per tip makes on a 13 mm copper wire, sized
+back, full from a standstill; only their braking (regeneration) fades below 3 m/s, since it
+needs motion (revised 2026-09-27: with the push faded too she could not start from rest) (what 0.9 kg of motor per tip makes on a 13 mm copper wire, sized
 to hold 79 km/h in either gait); **jaws**, the hands closing on the wire, up to 450 N
 backward only, proportional and automatic, never a control; the **shoe**, sliding
 friction μ·|pole load| against the tips' motion, μ 0.2, always on. Tip acceleration is

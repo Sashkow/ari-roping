@@ -19,7 +19,7 @@ export function boot(data, doc) {
   let game, cmds, clock, renderer, keys = {}, paused = false, busOn = !/[#&]nobus/.test(location.hash), lifted = /[#&]lifted/.test(location.hash), assist = null,
       scale = +(/[#&]speed=([\d.]+)/.exec(location.hash) || [0, level.input.time_scale ?? 1])[1], watch = /[#&]watch/.test(location.hash), last = performance.now(), cmd;
   // ---- a demo (#demo=<id>): a candidate of demos.js played by its plan, with its key moments numbered (tasks 12.1, 11.3)
-  const demoId = (/[#&]demo=(\w+)/.exec(location.hash) || [])[1], demo = demoId && data.demos && data.demos[demoId] && demos[demoId] ? { ...data.demos[demoId], plan: demos[demoId].plan } : null;
+  const demoId = (/[#&]demo=(\w+)/.exec(location.hash) || [])[1] || (data.page && data.page.defaultDemo), demo = demoId && data.demos && data.demos[demoId] && demos[demoId] ? { ...data.demos[demoId], plan: demos[demoId].plan } : null;
   let demoState = freshState(), stopAtMoments = false, moment = -1, seeking = false;
   // ---- the sound of her tips: off until the player picks a variant (browsers want a click before audio)
   let sound = null, soundCtx = null;
@@ -91,7 +91,7 @@ export function boot(data, doc) {
 
   function restart() {
     if (demo) lifted = demo.start === 'lifted';
-    game = makeGame(data.physics, level, { gait: lifted ? 'lifted' : 'pulled' }); cmds = makeCommands({ ...level.input, balance: level.balance });
+    game = makeGame(data.physics, level, { gait: lifted ? 'lifted' : 'pulled', startSpeed: demo && demo.start === 'still' ? 0 : undefined }); cmds = makeCommands({ ...level.input, balance: level.balance });
     if (assist !== null) game.assistOn = assist;
     game.crossSpanOn = crossOn;
     if (lifted) cmds.state.wingOn = true; clock = makeClock(dt); cmd = cmds.update({}, dt);
@@ -157,7 +157,7 @@ export function boot(data, doc) {
   $('cv').addEventListener('pointerdown', () => $('cv').focus());
   new ResizeObserver(() => renderer.resize()).observe($('cv'));
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderer.readTokens());
-  if (demo) { $('title').textContent = `Demo: ${demo.title}`; $('lede').textContent = `${demo.kind === 'line' ? 'A line' : 'A candidate badge'}: ${demo.what}. ${demo.closes ? 'It closes' : 'It does not close'}${Object.keys(demo.numbers).length ? ' (' + Object.entries(demo.numbers).map(([k, v]) => `${k} ${v}`).join(', ') + ')' : ''}. ${demo.note} Playback stops at each numbered moment; P plays on, , and . step between moments, R restarts.`;
+  if (demo) { $('title').textContent = `Demo: ${demo.title}`; $('lede').textContent = `${demo.kind === 'line' ? 'A line' : demo.kind === 'cross' ? 'Cross-spans on' : 'A candidate badge'}: ${demo.what}. ${demo.closes ? 'It closes' : 'It does not close'}${Object.keys(demo.numbers).length ? ' (' + Object.entries(demo.numbers).map(([k, v]) => `${k} ${v}`).join(', ') + ')' : ''}. ${demo.note} Playback stops at each numbered moment; P plays on, , and . step between moments, R restarts.`;
     $('demoBox').hidden = false; $('stopAt').addEventListener('change', (e) => { stopAtMoments = e.target.checked; }); }
   // the sound controls live on every page, demo or not
   { const sel = $('soundVariant');
@@ -169,6 +169,7 @@ export function boot(data, doc) {
     const apply = () => { setSound(sel.value); try { localStorage.setItem('roping-sound', JSON.stringify({ variant: sel.value })); } catch (e) { /* session only */ } };
     sel.addEventListener('change', apply);
     if (sel.value !== 'off') doc.addEventListener('pointerdown', apply, { once: true }); }
+  if (data.page) { doc.title = data.page.title; const h = $('demoList').querySelector('.padhead'); h.children[0].textContent = data.page.listTitle; h.children[1].textContent = data.page.listLine; }
   if (data.demos && Object.keys(data.demos).length) { $('demoList').hidden = false;
     $('demoLinks').replaceChildren(...Object.entries(data.demos).map(([id, d]) => { const a = doc.createElement('a'); a.href = `#demo=${id}`; a.textContent = `${d.title}`; a.title = d.what; a.className = d.closes ? 'closes' : 'open'; return a; }));
     window.addEventListener('hashchange', () => location.reload()); }                     // a demo link changes the hash; the page is rebuilt from it

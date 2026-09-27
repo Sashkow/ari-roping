@@ -64,6 +64,9 @@ default 10 N and 3 m/s. *Why:* induction needs relative motion; near standstill 
 coils do little and only the jaws and the shoe remain. It also answers the design
 question in the game ("should grip depend on tip speed"): the coil part does, the jaws
 do not. *Alternative:* no fade; kept as `fade_speed: 0` for runs that want it off.
+*Revised 2026-09-27 (after archiving):* the fade now applies only to the coils' braking. An
+induction motor drives its travelling field at any speed, so it pushes at full thrust from rest;
+with the push faded too, a standing start was impossible (change `roping-game`, task 4.5).
 
 **3a. Coil thrust is 35 N and the poles weigh 3 kg (author, 2026-09-23, revised the
 same evening).** A first sizing kept the poles at 1 kg and got 10 N of coil, but the
