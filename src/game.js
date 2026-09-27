@@ -67,6 +67,8 @@ export function makeGame(physics, level, opts = {}) {
     }
   }
 
+  g.F = F; g.LB = LB; g.level = level;
+  g.twin = () => makeGame(physics, level, { ...opts, startSpeed: 0 });   // a second game, for plans that try a move out before making it                                          // the flight model, for plans that look ahead (the cross-span demos)
   g.head = () => (g.mode === 'wire' ? [g.st.x + g.l * Math.sin(g.st.th), -g.l * Math.cos(g.st.th)] : [g.fl.x, g.fl.y]);
   g.tips = () => (g.mode === 'wire' ? [g.st.x, 0] : [g.fl.x + g.fl.l * Math.cos(g.fl.phi), g.fl.y + g.fl.l * Math.sin(g.fl.phi)]);
   g.poleLength = () => (g.mode === 'wire' ? g.l : g.fl.l);

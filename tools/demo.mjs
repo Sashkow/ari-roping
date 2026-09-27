@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 import { makeGame } from '../src/game.js';
 import { makeCommands } from '../src/input.js';
 import { makeTokens, tokenLine } from '../src/tokens.js';
-import { demos, grid, freshState } from '../src/demos.js';
+import { demos, grid, freshState, keysToMask } from '../src/demos.js';
 import { rad } from '../src/util.js';
 
 const ROOT = new URL('../', import.meta.url);
@@ -23,23 +23,27 @@ export function run(cand, p) {
   const g = makeGame(constants.physics, level, { gait: cand.start === 'lifted' ? 'lifted' : 'pulled', startSpeed: cand.start === 'still' ? 0 : undefined });
   const cmds = makeCommands({ ...level.input, balance: level.balance }), dt = level.tuning.step, tokens = makeTokens(g, level), st = freshState();
   if (cand.start === 'lifted') cmds.state.wingOn = true;
+  if (cand.setup) cand.setup(g);
+  const keyLog = [];                                  // the keys as a timeline, [step, mask] at each change: the page replays heavy plans from it
   const engage = rad(level.balance.engage_deg), toks = [], trace = [], inputs = [];
   let prevKeys = {}, cmd = cmds.update({}, dt);
   while (!g.over && g.t < (cand.tMax ?? T_MAX) && !(cand.done && cand.done(g, st))) {
     const keys = cand.plan(g, p, st) || {};
     for (const k of new Set([...Object.keys(prevKeys), ...Object.keys(keys)])) if (!!keys[k] !== !!prevKeys[k]) inputs.push(`${g.t.toFixed(3)}  ${k} ${keys[k] ? 'on' : 'off'}`);
     prevKeys = { ...keys };
+    const mask = keysToMask(keys); if (!keyLog.length || keyLog[keyLog.length - 1][1] !== mask) keyLog.push([trace.length, mask]);
     cmd = cmds.update(keys, dt); g.step(cmd, dt);
     if (g.won && g.over) { g.over = null; g.passedAt = Infinity; }              // a demo runs on past the win: the shape may come after the pass
     if (g.events.includes('arc')) cmds.cancelSpread();
     toks.push(...tokens.step(cmd));
     const [hx, hy] = g.head(), [, vy] = g.velocity(), o = g.out, geo = g.world.geom();
     const liftShare = g.mode === 'wire' && o ? o.lift / g.P.W : 0, spread = !!(g.shown || cmd).spread && !g.arcing();
-    trace.push({ t: g.t, dt, mode: g.mode, spread, vy, tx: g.tips()[0], u: g.mode === 'wire' ? g.st.u : 0, fCoil: g.mode === 'wire' && o ? o.fCoil || 0 : 0, dl: g.mode === 'wire' ? g.dl : 0, l: g.poleLength(), tension: o ? o.tension : 0, liftShare, curl: g.fl ? g.fl.curl || 0 : 0,
+    const [tx_, ty_] = g.tips(), ta = g.tailAngle(cmd), LB = constants.physics.body.length;
+    trace.push({ t: g.t, dt, mode: g.mode, spread, vy, tx: tx_, ty: ty_, hx, hy, bx: hx + LB * Math.cos(ta), by: hy + LB * Math.sin(ta), u: g.mode === 'wire' ? g.st.u : 0, fCoil: g.mode === 'wire' && o ? o.fCoil || 0 : 0, dl: g.mode === 'wire' ? g.dl : 0, l: g.poleLength(), tension: o ? o.tension : 0, liftShare, curl: g.fl ? g.fl.curl || 0 : 0,
                  lifted: g.mode === 'wire' && spread && g.st.th > engage && liftShare > 0.6, overBus: g.world.bus.on && hx > geo.rear && hx < geo.front && hy > g.world.roofY,
                  catchAlong: g.catchAlong != null && trace.length && trace[trace.length - 1].mode === 'air' && g.mode === 'wire' ? g.catchAlong : null });
   }
-  return { g, toks, trace, inputs };
+  return { g, toks, trace, inputs, keyLog };
 }
 
 function tab(id, cand, p, r) {
@@ -60,7 +64,7 @@ for (const id of ids) {
   }
   const { p, r, c } = best, nums = Object.fromEntries(Object.entries(c).filter(([k]) => !['ok', 'note', 'score'].includes(k)));
   results[id] = { title: cand.title, kind: cand.kind, what: cand.what, group: cand.group || null, start: cand.start || 'pulled', params: p, closes: c.ok, numbers: nums, note: c.note || '', ended: r.g.over || 'time up',
-                  tokens: r.toks.map((k) => ({ ...k })) };
+                  tokens: r.toks.map((k) => ({ ...k })), ...(cand.group ? { keys: r.keyLog } : {}) };
   writeFileSync(new URL(`out/demos/${id}.tab`, ROOT), tab(id, cand, p, r));
   console.log(`${c.ok ? 'closes      ' : 'does not close'}  ${id.padEnd(18)} ${JSON.stringify(nums)}  ${c.note || ''}`);
 }

@@ -7,7 +7,7 @@ import { makeRenderer } from './render.js';
 import { autopilots } from './autopilot.js';
 import { deg } from './util.js';
 import { readPad, movedControl, snapshot, defaultMappingFor } from './gamepad.js';
-import { demos, freshState } from './demos.js';
+import { demos, freshState, maskToKeys } from './demos.js';
 import { makeSound } from './sound.js';
 
 const KEYMAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', ' ': 'grip', f: 'flare', F: 'flare', g: 'wing', G: 'wing',
@@ -19,8 +19,14 @@ export function boot(data, doc) {
   let game, cmds, clock, renderer, keys = {}, paused = false, busOn = !/[#&]nobus/.test(location.hash), lifted = /[#&]lifted/.test(location.hash), assist = null,
       scale = +(/[#&]speed=([\d.]+)/.exec(location.hash) || [0, level.input.time_scale ?? 1])[1], watch = /[#&]watch/.test(location.hash), last = performance.now(), cmd;
   // ---- a demo (#demo=<id>): a candidate of demos.js played by its plan, with its key moments numbered (tasks 12.1, 11.3)
-  const demoId = (/[#&]demo=(\w+)/.exec(location.hash) || [])[1] || (data.page && data.page.defaultDemo), demo = demoId && data.demos && data.demos[demoId] && demos[demoId] ? { ...data.demos[demoId], plan: demos[demoId].plan, done: demos[demoId].done } : null;
-  let demoState = freshState(), stopAtMoments = false, moment = -1, seeking = false;
+  const demoId = (/[#&]demo=(\w+)/.exec(location.hash) || [])[1] || (data.page && data.page.defaultDemo), demo = demoId && data.demos && data.demos[demoId] && demos[demoId] ? { ...data.demos[demoId], plan: demos[demoId].plan, done: demos[demoId].done, setup: demos[demoId].setup } : null;
+  let demoState = freshState(), stopAtMoments = false, moment = -1, seeking = false, demoStep = 0, demoKi = 0;
+  /** The demo's keys for this step: from its recorded timeline when it has one (a plan too heavy to run live), else from its plan. */
+  const demoKeys = () => {
+    if (!demo.keys) return demo.plan(game, demo.params, demoState);
+    while (demoKi + 1 < demo.keys.length && demo.keys[demoKi + 1][0] <= demoStep) demoKi++;
+    demoStep++; return demo.keys.length ? maskToKeys(demo.keys[demoKi][1]) : {};
+  };
   // ---- the sound of her tips: off until the player picks a variant (browsers want a click before audio)
   let sound = null, soundCtx = null;
   const soundWant = (/[#&]sound=(synth|laz)/.exec(location.hash) || [])[1];
@@ -49,7 +55,7 @@ export function boot(data, doc) {
   /** Replay the demo from the start up to moment i and hold there. */
   function seek(i) {
     if (!demo) return; restart(); seeking = true; const k = moments[i];
-    for (let n = 0; n < k.t / dt + 0.5 && !game.over; n++) { cmd = cmds.update(demo.plan(game, demo.params, demoState), dt); game.step(cmd, dt); if (game.won && game.over) { game.over = null; game.passedAt = Infinity; } if (game.events.includes('arc')) cmds.cancelSpread(); }
+    for (let n = 0; n < k.t / dt + 0.5 && !game.over; n++) { cmd = cmds.update(demoKeys(), dt); game.step(cmd, dt); if (game.won && game.over) { game.over = null; game.passedAt = Infinity; } if (game.events.includes('arc')) cmds.cancelSpread(); }
     seeking = false; moment = i; paused = true; renderer.snap(game); drawMoments();
   }
   const marks = () => moments.map((k, i) => ({ x: k.x, y: k.y, n: i + 1, current: i === moment })).filter((m, i) => moments[i].t <= game.t + 1e-9);
@@ -97,6 +103,7 @@ export function boot(data, doc) {
     if (lifted) cmds.state.wingOn = true; clock = makeClock(dt); cmd = cmds.update({}, dt);
     demoState = freshState(); if (!seeking) { moment = -1; paused = false; } drawMoments();
     game.world.setBus(busOn, 0);
+    demoStep = 0; demoKi = 0; if (demo && demo.setup) demo.setup(game);
     renderer = makeRenderer($('cv'), game.world, data.physics); renderer.snap(game);
     $('result').hidden = true; keys = {};
   }
@@ -127,7 +134,7 @@ export function boot(data, doc) {
     const elapsed = Math.max(0, Math.min(0.1, (now - last) / 1000)); last = now;      // never negative: frame times and performance.now can disagree at start
     if (!paused && !game.over) clock.advance(elapsed * scale * (cmd.slow ? level.input.slow_motion : 1), () => {
       if (paused) return;
-      cmd = cmds.update(demo ? demo.plan(game, demo.params, demoState) : watch ? autopilots.brakePullHoop(game) : keys, dt, watch || demo ? null : padRead); game.step(cmd, dt); if (game.events.includes('arc')) cmds.cancelSpread();
+      cmd = cmds.update(demo ? demoKeys() : watch ? autopilots.brakePullHoop(game) : keys, dt, watch || demo ? null : padRead); game.step(cmd, dt); if (game.events.includes('arc')) cmds.cancelSpread();
       if (demo) { if (game.won && game.over) { game.over = null; game.passedAt = Infinity; }              // a demo runs on past the win
         if (demo.done && demo.done(game, demoState)) paused = true;                          // a demo with an end (the cross-span runs) stops there
         const next = moments.findIndex((k) => k.t > game.t - dt - 1e-9 && k.t <= game.t + 1e-9); if (next >= 0) { moment = next; if (stopAtMoments) paused = true; drawMoments(); } }

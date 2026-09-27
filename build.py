@@ -86,7 +86,7 @@ def main():
     # the cross-span page (task 4.5): the same game with only the cross-span demos, opening on the first
     cross = {k: d for k, d in demos.items() if d.get("group") == "cross-span"}
     if cross:
-        page = dict(title="Roping Ari: the cross-spans", listTitle="Cross-span demos", listLine="from a standstill, the trolleybus off, the cross-spans on, no wing: to the 6th support, catching the wire in every 35 m section", defaultDemo=next(iter(cross)))
+        page = dict(title="Roping Ari: the cross-spans", listTitle="Cross-span demos", listLine="from a standstill, the trolleybus off, the cross-spans on, to the 6th support: under the hangers, over the spans, and flying", defaultDemo=next(iter(cross)))
         out3 = DIST / "cross-span.html"
         out3.write_text(shell.replace("/*DATA*/null", json.dumps({**{k: v for k, v in data.items() if k != "sounds"}, "demos": cross, "page": page}, separators=(",", ":")), 1).replace("/*BUNDLE*/", code, 1))
         print(f"{out3.relative_to(HERE)}: {out3.stat().st_size // 1024} KB, {len(cross)} demo(s)")

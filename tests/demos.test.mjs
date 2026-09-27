@@ -9,7 +9,7 @@ import { execFileSync } from 'node:child_process';
 import { makeGame } from '../src/game.js';
 import { makeCommands } from '../src/input.js';
 import { makeTokens } from '../src/tokens.js';
-import { demos, freshState } from '../src/demos.js';
+import { demos, freshState, maskToKeys } from '../src/demos.js';
 
 const { physics } = JSON.parse(readFileSync(new URL('../data/constants.json', import.meta.url)));
 const level = JSON.parse(execFileSync(process.env.PYTHON || '/opt/ro/venv/bin/python', ['-c',
@@ -20,8 +20,23 @@ test('every recorded demo replays to the same tokens at the same times', { skip:
   for (const [id, d] of Object.entries(recorded)) {
     const c = demos[id], g = makeGame(physics, level, { gait: d.start === 'lifted' ? 'lifted' : 'pulled', startSpeed: d.start === 'still' ? 0 : undefined }), cmds = makeCommands({ ...level.input, balance: level.balance }), dt = level.tuning.step, tk = makeTokens(g, level), st = freshState(), toks = [];
     if (d.start === 'lifted') cmds.state.wingOn = true;
+    if (c.setup) c.setup(g);
     while (!g.over && g.t < (c.tMax ?? 14) && !(c.done && c.done(g, st))) { const cmd = cmds.update(demos[id].plan(g, d.params, st), dt); g.step(cmd, dt); if (g.won && g.over) { g.over = null; g.passedAt = Infinity; } if (g.events.includes('arc')) cmds.cancelSpread(); toks.push(...tk.step(cmd)); }
     assert.deepEqual(toks.map((k) => [k.t, k.name]), d.tokens.map((k) => [k.t, k.name]), `${id}: the replay should reproduce the recorded moments`);
+  }
+});
+
+test('a recorded key timeline replays to the same moments as its plan (the page plays heavy plans from it)', { skip: !Object.values(recorded).some((d) => d.keys) && 'no recorded keys' }, () => {
+  for (const [id, d] of Object.entries(recorded)) {
+    if (!d.keys) continue;
+    const c = demos[id], g = makeGame(physics, level, { gait: 'pulled', startSpeed: d.start === 'still' ? 0 : undefined }), cmds = makeCommands({ ...level.input, balance: level.balance }), dt = level.tuning.step, tk = makeTokens(g, level), toks = [];
+    if (c.setup) c.setup(g);
+    let n = 0, ki = 0;
+    while (!g.over && g.t < (c.tMax ?? 14) && !(c.done && c.done(g, {}))) {
+      while (ki + 1 < d.keys.length && d.keys[ki + 1][0] <= n) ki++;
+      const cmd = cmds.update(maskToKeys(d.keys[ki][1]), dt); n++; g.step(cmd, dt); if (g.events.includes('arc')) cmds.cancelSpread(); toks.push(...tk.step(cmd));
+    }
+    assert.deepEqual(toks.map((k) => [k.t, k.name]), d.tokens.map((k) => [k.t, k.name]), `${id}: the key timeline should reproduce the recorded moments`);
   }
 });
 

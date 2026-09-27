@@ -4,6 +4,7 @@
 // stream that says whether the shape happened. Nothing here is a badge: the author picks from the demos.
 // A plan returns the `keys` object of input.js for the current game state; `p` holds the parameters.
 import { rad } from './util.js';
+import { makeCommands } from './input.js';
 
 const D = Math.PI / 180;
 const has = (toks, name, f = () => true) => toks.find((k) => k.name === name && f(k));
@@ -72,6 +73,186 @@ function crossResult(g, trace) {
   return { done, air: +air.toFixed(2), dips, t: reach >= 0 ? +upto[upto.length - 1].t.toFixed(2) : null, sections: `${[...caught].filter((k) => k >= 0 && k <= CROSS_GOAL).length}/${CROSS_GOAL + 1}`, effort: +(effort / 1000).toFixed(2), top: +(top * 3.6).toFixed(0) };
 }
 
+/** Her tips, head and tail in flight (narrow: the body in line with the poles). */
+const flightParts = (f, LB) => [[f.x + f.l * Math.cos(f.phi), f.y + f.l * Math.sin(f.phi)], [f.x, f.y], [f.x - LB * Math.cos(f.phi), f.y - LB * Math.sin(f.phi)]];
+/** Where a release now would take her, run ahead on a copy of the flight: idle, then the reach once all of her is past the
+ *  support `sx` + 0.6 m, falling, with her head below `commit` m. Returns the lowest point at which any of her crosses the support's
+ *  line, where she would catch the wire (null if she would not), and when. `ctl` is the air control (the wing for the flying demos). */
+function lookAhead(g, sx, commit, ctl = {}, h = 0.002, dl = g.dl) {
+  const F = g.F, f = F.release(g.st, g.l, dl);
+  f.dry = true;
+  let low = Infinity, t = 0, prev = null;
+  const parts = (f) => flightParts(f, g.LB);
+  const cross = (a, b) => ((a[0] - sx) * (b[0] - sx) <= 0 && a[0] !== b[0] ? a[1] + ((b[1] - a[1]) * (sx - a[0])) / (b[0] - a[0]) : null);
+  for (; t < 4; t += h) {
+    const pts = parts(f), past = Math.min(...pts.map((q) => q[0])) > sx + 0.6;
+    const reach = t > 0.16 && past && f.vy < 0 && f.y < commit;
+    for (const y of [cross(pts[0], pts[1]), cross(pts[1], pts[2])]) if (y != null) low = Math.min(low, y);
+    if (prev) for (let n = 0; n < 3; n++) { const y = cross(prev[n], pts[n]); if (y != null) low = Math.min(low, y); }
+    prev = pts;
+    const got = F.step(f, { grip: reach, poleRate: 0, spread: !!ctl.spread && !reach, pitch: ctl.pitch ?? rad(25) }, h);
+    if (got) return { low, x: got.x, t, hard: got.hard };
+    if (f.y < -3) break;
+  }
+  return { low, x: null, t };
+}
+/** The launch as keys, for the game and for its twin: brake (hard if asked, while the pole load allows), pull the poles in
+ *  through the bottom of the swing down to `pump` m (0: not at all), and let go at the first moment the look-ahead says the flight
+ *  clears the support at `sx` (all of her above the cross-span) and lands on the wire before the next one. Returns the reach
+ *  height it let go for, or null; 'over' once the swing has gone past the top with no clean release. */
+function launchStep(g, k, p, sx, tick) {
+  const load = g.out ? Math.abs(g.out.tension) : 0, easy = load < 800;                        // keep clear of the 1000 N the tips can hang
+  k.left = true; k.hard = !!p.hard && easy; if (p.pump && easy && g.st.th > rad(-10) && g.l > p.pump) k.up = true;
+  if (g.st.th > rad(200)) return 'over';
+  if (g.st.th > rad(20) && g.st.om > 0 && tick % 5 === 0)
+    for (const commit of [1.5, 0.5, 2.5]) {
+      const f = lookAhead(g, sx, commit, {}, 0.002, k.up ? g.dl : 0);             // the pole rate the release step will have
+      if (f.x != null && f.low > CROSS_SPAN_TOP + 0.1 && f.x > sx + 3 && f.x < sx + g.world.SPAN - 3) { k.grip = true; if (globalThis.DEMO_DEBUG && !g.twinOf) console.log('predict', g.t.toFixed(3), 'sx', sx, 'x', f.x.toFixed(2), 'low', f.low.toFixed(2), 'commit', commit, 'tx', g.st.x.toFixed(2), 'th', (g.st.th * 57.3).toFixed(1)); return commit; }   // beyond her poles' reach of the support, so no swing takes her back under it
+    }
+  return null;
+}
+/** Would a launch started now work, and which (brake and pump)? Tried out on the twin game: the same state, the launch run for up to 1.5 s. */
+function launchWorks(g, st, p, sx) {
+  for (const q of [p, { hard: true, pump: 1.2 }, { hard: true, pump: 1.4 }, { hard: false, pump: 1.2 }, { hard: true, pump: 1.0 }, { hard: true, pump: 0 }])   // the plan's own launch first
+    if (launchTry(g, st, q, sx)) return q;
+  return null;
+}
+function launchTry(g, st, p, sx) { return onTwin(g, st, (tw, k, i) => launchStep(tw, k, p, sx, i)); }
+/** Run `fn(twin, keys, i)` on the twin game from the game's state for up to 1.5 s: true as soon as it returns a value, false on 'over'. */
+function onTwin(g, st, fn) {
+  const tw = (st.twin ??= Object.assign(g.twin(), { twinOf: true })), cmds = makeCommands({ ...g.level.input, balance: g.level.balance }), dt = g.level.tuning.step;
+  if (tw.world.bus.on) tw.world.setBus(false);
+  Object.assign(tw, { st: { ...g.st }, l: g.l, dl: g.dl, mode: 'wire', fl: null, over: null, t: g.t, out: g.out, reaching: false, crossSpanOn: false });
+  if (g.shown) Object.assign(cmds.state, { accel: g.shown.accel ?? 0, poleRate: g.shown.poleRate ?? 0 });   // the throttle ramps from where the game's is
+  for (let i = 0; i < 1500 && !tw.over && tw.mode === 'wire'; i++) {
+    const k = {}, r = fn(tw, k, i);
+    if (r === 'over') return false;
+    if (r != null) return true;
+    tw.step(cmds.update(k, dt), dt);
+    if (globalThis.TWIN_DEBUG && i % 50 === 0) console.log('  twin', i, 'x', tw.st.x.toFixed(2), 'u', tw.st.u.toFixed(2), 'th', (tw.st.th * 57.3).toFixed(0), 'l', tw.l.toFixed(2), 'mode', tw.mode, tw.over || '');
+  }
+  return false;
+}
+/** Over the top: drive to `v` m/s with the poles out, the coils damping any swing a catch left; approaching a support, start the
+ *  launch at the first moment the twin says it works; in the air, reach on the rule the look-ahead used. */
+function hop(g, k, p, st, drive) {
+  const W = g.world;
+  st.tick = (st.tick ?? 0) + 1;
+  if (g.mode === 'wire') {
+    const next = W.spanX(Math.floor((g.st.x - 10) / W.SPAN) + 1), calm = Math.abs(g.st.th - rad(-8)) < rad(20) && Math.abs(g.st.om) < 1.5;
+    if (st.launching !== next && next - g.st.x < 16 && g.st.u > 2 && st.tick % 20 === 0 && (st.how = launchWorks(g, st, p, next))) { st.launching = next; st.tick = 0; }
+    if (st.launching === next) { const r = launchStep(g, k, st.how, next, st.tick); if (r === 'over') st.launching = 'gave up'; else if (r != null) { st.over = next; st.commit = r; } }
+    else if (!calm) { k.right = g.st.om > 0; k.left = g.st.om < 0 && g.st.u > 2; if (g.l < 2.39) k.down = true; }   // the coils damp the swing a catch leaves: tips after the body
+    else { k.right = drive; if (g.l < 2.39) k.down = true; }
+  } else {
+    const past = Math.min(...flightParts(g.fl, g.LB).map((q) => q[0])) > st.over + 0.6;
+    if (past && g.fl.vy < 0 && g.fl.y < st.commit) k.grip = true;
+  }
+}
+/** A flight run ahead on a copy, for the flying demos: the wing spread while her head is above `fold` m (and folded before she
+ *  comes down through the wire plane, where a spread body strikes an arc), the reach once she is falling below `commit` m with all
+ *  of her clear of every support by 0.6 m. Returns where she would catch the wire (null if not), whether any of her would cross a
+ *  hanger (between the wire and the span, at a support), and how far she flew with the wing spread. */
+function flyAhead(g, p, dl = g.dl, h = 0.002) {
+  const F = g.F, W = g.world, f = F.release(g.st, g.l, dl), SP = W.SPAN;
+  f.dry = true;
+  let prev = null, bad = false, wingDist = 0, t = 0;
+  const near = (x) => { const k = Math.round((x - 10) / SP); return Math.abs(x - W.spanX(k)) < 0.6; };
+  for (; t < 6; t += h) {
+    const pts = flightParts(f, g.LB);
+    if (prev) for (let n = 0; n < 3; n++) {                                                 // any part crossing a support line between the wire and the span
+      const [a, b] = [prev[n], pts[n]], k = Math.round((b[0] - 10) / SP), sx = W.spanX(k);
+      if ((a[0] - sx) * (b[0] - sx) <= 0 && a[0] !== b[0]) { const y = a[1] + ((b[1] - a[1]) * (sx - a[0])) / (b[0] - a[0]); if (y > -0.1 && y < CROSS_SPAN_TOP + 0.05) bad = true; }
+    }
+    for (const [a, b] of [[pts[0], pts[1]], [pts[1], pts[2]]]) { const k = Math.round((a[0] - 10) / SP), sx = W.spanX(k);  // her poles or body straddling a support now
+      if ((a[0] - sx) * (b[0] - sx) < 0) { const y = a[1] + ((b[1] - a[1]) * (sx - a[0])) / (b[0] - a[0]); if (y > -0.1 && y < CROSS_SPAN_TOP + 0.05) bad = true; } }
+    prev = pts;
+    const reach = t > 0.16 && f.vy < 0 && f.y < p.commit && !pts.some((q) => near(q[0]));
+    const spread = f.y > p.fold && !reach;
+    const x0 = f.x;
+    const got = F.step(f, { grip: reach, poleRate: 0, spread, pitch: rad(p.pitch) }, h);
+    if (spread) wingDist += Math.abs(f.x - x0);
+    if (got) { const off = ((got.x - 10) % SP + SP) % SP; return { x: got.x, bad: bad || off < 3 || off > SP - 6, wingDist, t }; }   // not within 6 m before a support or 3 m after it
+    if (f.y < -3) break;
+  }
+  return { x: null, bad: true, wingDist, t };
+}
+/** The flying launch: brake and pump as the hop does, and let go at the peak of the look-ahead's flight (farthest catch, nothing
+ *  crossing a hanger). Returns 'over' when the swing has gone past the top, true on the release, null otherwise. */
+function flyLaunchStep(g, k, p, st, tick) {
+  const load = g.out ? Math.abs(g.out.tension) : 0, easy = load < 800;
+  k.left = true; k.hard = !!p.hard && easy; if (p.pump && easy && g.st.th > rad(-10) && g.l > p.pump) k.up = true;
+  if (g.st.th > rad(200)) return 'over';
+  if (g.st.th > rad(20) && g.st.om > 0 && tick % 5 === 0) {
+    const f = flyAhead(g, p, k.up ? g.dl : 0), x = f.x != null && !f.bad && f.x - g.st.x >= p.minFly && f.x > (p.past ?? -Infinity) + 3 ? f.x : -Infinity;   // over the next support at least
+    if (x > -Infinity && x < (st.flyBest ?? -Infinity) - 0.3) { k.grip = true; st.flyBest = null; return true; }   // a good flight, just past the best: go   // past the peak: go
+    st.flyBest = Math.max(st.flyBest ?? -Infinity, x);
+  }
+  return null;
+}
+/** Flying from a standstill to the 6th support: drive to `v` m/s, damp the swing; when the twin says a launch now gives a flight,
+ *  launch and let go at the peak; in the air the wing and the reach as the look-ahead flew them. `lifted`: keep the wing on through
+ *  the catch, so she rides the wire in the lifted gait (her body flying ahead of her tips) and launches from there. */
+function fly(g, k, p, st) {
+  st.tick = (st.tick ?? 0) + 1;
+  if (g.mode === 'wire') {
+    if (st.wingOn && !p.lifted) { k.wing = true; st.wingOn = false; }                    // folded on the wire unless riding lifted
+    const W = g.world, next = W.spanX(Math.floor((g.st.x - 10) / W.SPAN) + 1);
+    const calm = p.lifted && st.wingOn ? true : Math.abs(g.st.th - rad(-8)) < rad(20) && Math.abs(g.st.om) < 1.5;
+    const pp = { ...p, past: next };
+    if (st.launching !== next && next - g.st.x < 16 && g.st.u > 2 && st.tick % 20 === 0) {
+      for (const q of [{}, { hard: true, pump: 1.4 }, { hard: false, pump: 1.2 }, { hard: true, pump: 1.0 }, { hard: true, pump: 0 }]) {   // the plan's own launch first
+        const twinSt = {}, pq = { ...pp, ...q };
+        if (onTwin(g, st, (tw, kk, i) => { const r = flyLaunchStep(tw, kk, pq, twinSt, i); return r === 'over' ? 'over' : r ? true : null; })) { st.launching = next; st.tick = 0; st.flyBest = null; st.how = q; break; }
+      }
+    }
+    if (st.launching === next) { const r = flyLaunchStep(g, k, { ...pp, ...st.how }, st, st.tick); if (r === 'over') st.launching = 'gave up'; }
+    else if (p.lifted && next - g.st.x > 16) goLifted(g, k, { entry: p.entry ?? 'brake', wingAt: 40, polesOut: true }, st);   // between supports: up into the lifted gait, her body flying
+    else if (!calm) { k.right = g.st.om > 0; k.left = g.st.om < 0 && g.st.u > 2; if (g.l < 2.39) k.down = true; }
+    else { k.right = g.st.u < p.v; if (g.l < 2.39) k.down = true; }
+  } else {
+    const W = g.world, pts = flightParts(g.fl, g.LB), near = pts.some((q) => { const kk = Math.round((q[0] - 10) / W.SPAN); return Math.abs(q[0] - W.spanX(kk)) < 0.6; });
+    const reach = g.airTime > 0.16 && g.fl.vy < 0 && g.fl.y < p.commit && !near, spread = g.fl.y > p.fold && !reach;
+    if (spread !== !!st.wingOn && !(p.lifted && reach)) { k.wing = true; st.wingOn = !st.wingOn; }
+    if (st.wingOn) setPitch(k, st, p.pitch);
+    if (reach) k.grip = true;
+  }
+}
+/** Distance she covered off the wire with the wing spread, off the wire at all, and riding lifted, up to the goal, as shares of it. */
+function flyResult(g, trace) {
+  const W = g.world, goal = W.spanX(CROSS_GOAL), reach = trace.findIndex((r) => r.mode === 'wire' && r.tx >= goal), upto = reach < 0 ? trace : trace.slice(0, reach + 1);
+  let wing = 0, air = 0, lifted = 0, airT = 0;
+  for (let i = 1; i < upto.length; i++) { const r = upto[i], dx = Math.abs(r.hx - upto[i - 1].hx);
+    if (r.mode === 'air') { air += dx; airT += r.dt; if (r.spread) wing += dx; } else if (r.lifted) lifted += dx; }
+  const done = reach >= 0 && g.spanHits === 0 && !g.over, pc = (d) => Math.round((100 * d) / goal);
+  return { done, t: reach >= 0 ? +upto[upto.length - 1].t.toFixed(2) : null, wing_pc: pc(wing), air_pc: pc(air), lifted_pc: pc(lifted), air_s: +airT.toFixed(1), flights: upto.filter((r, i) => i && r.mode === 'air' && upto[i - 1].mode === 'wire').length };
+}
+
+/** The lowest point at which any of her (tips, poles, body) crossed each support's line x = spanX(k), k = 0..CROSS_GOAL, over the
+ *  run up to the goal: for the "over the top" demos, which may not pass under the hanger, every one must clear the cross-span. */
+function crossings(g, trace) {
+  const W = g.world, low = Array(CROSS_GOAL + 1).fill(Infinity);
+  const at = (a, b, sx) => (a[0] - sx) * (b[0] - sx) <= 0 && a[0] !== b[0] ? a[1] + ((b[1] - a[1]) * (sx - a[0])) / (b[0] - a[0]) : null;
+  for (let i = 1; i < trace.length; i++) {
+    const r = trace[i], q = trace[i - 1];
+    for (let k = 0; k <= CROSS_GOAL; k++) {
+      const sx = W.spanX(k), ys = [at([r.hx, r.hy], [r.tx, r.ty], sx), at([r.hx, r.hy], [r.bx, r.by], sx),     // her poles and body across the line now
+        at([q.tx, q.ty], [r.tx, r.ty], sx), at([q.hx, q.hy], [r.hx, r.hy], sx), at([q.bx, q.by], [r.bx, r.by], sx)];   // her tips, head, tail crossing it this step
+      for (const y of ys) if (y != null) low[k] = Math.min(low[k], y);
+    }
+    if (r.mode === 'wire' && r.tx >= W.spanX(CROSS_GOAL)) break;
+  }
+  return low;
+}
+
+function overResult(g, trace, score) {
+  const c = crossResult(g, trace), low = crossings(g, trace), clear = CROSS_SPAN_TOP, under = low.filter((y) => y < clear).length;
+  const ok = c.done && under === 0;
+  return { ok, time_s: c.t, effort_kJ: c.effort, top_kmh: c.top, span_hits: g.spanHits, sections: c.sections, hops: c.dips, under, lowest_m: low.map((y) => (y === Infinity ? null : +y.toFixed(2))).join(' '),
+           score: ok ? score(c) : -99 - 5 * g.spanHits - under + 3 * (c.sections ? +c.sections.split('/')[0] : 0) };
+}
+const OVER_NOTE = 'Nothing of her may pass under a hanger, so at every support she hops over the cross-span: a hard brake that swings her body forward and up, her poles pulled in through the bottom of the swing, and a release at the moment a look-ahead says all of her will clear the span and land on the wire more than a pole length past it. A twin of the game tries the launch out on the approach and starts it at the first moment it works.';
+const CROSS_SPAN_TOP = 0.6;   // the span's height plus its radius (base.yaml cross_span): below this at a support she went under
 export const demos = {
   // ---- single moments -----------------------------------------------------------------------------------
   spun_down: {
@@ -213,6 +394,53 @@ export const demos = {
     closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, effort_kJ: c.effort, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, dips: c.dips, score: c.done ? -c.effort : -99 - g.spanHits,
       note: 'Held speeds of 5 to 12 m/s were tried; the cheapest was 6 m/s (2.3 kJ, 29 s). Each dip costs a little: after the catch her poles are longer and she pulls them back in under load before the next support. Faster costs more in drag and in the push to get up to speed.' }; },
   },
+
+  // ---- over the top (task 4.6, author 2026-09-27): the same three, but nothing of her may pass under a hanger: at every support
+  // she goes over the cross-span, all of her above it, and catches the wire beyond it.
+  over_ride: {
+    title: 'Over the spans', kind: 'cross', group: 'cross-span', start: 'still', tMax: 60,
+    what: 'from a standstill to the 6th support, over the top of every cross-span, catching the wire in every section',
+    params: { v: [12], hard: [true], pump: [1.2] },
+    plan(g, p, st) { const k = {}; crossSetup(g); hop(g, k, p, st, g.mode === 'wire' && g.st.u < p.v); return k; },
+    done: crossStopped,
+    closes(toks, g, trace) { return { ...overResult(g, trace, (c) => -c.t), note: OVER_NOTE }; },
+  },
+  over_fast: {
+    title: 'Over the spans, fastest', kind: 'cross', group: 'cross-span', start: 'still', tMax: 60,
+    what: 'the least time from a standstill to the 6th support, over the top of every cross-span, full thrust on the wire between hops',
+    params: { hard: [true, false], pump: [1.0, 1.2, 1.4] },
+    plan(g, p, st) { const k = {}; crossSetup(g); hop(g, k, p, st, g.mode === 'wire'); return k; },
+    done: crossStopped,
+    closes(toks, g, trace) { return { ...overResult(g, trace, (c) => -c.t), note: OVER_NOTE + ' Every hop starts with a brake to almost nothing, so full thrust between them buys little.' }; },
+  },
+  over_easy: {
+    title: 'Over the spans, least effort', kind: 'cross', group: 'cross-span', start: 'still', tMax: 60,
+    what: 'the least energy from a standstill to the 6th support within a minute, over the top of every cross-span: coil work plus the work of pulling the poles in',
+    params: { v: [6, 8, 10, 12, 15], hard: [true], pump: [1.2] },
+    plan(g, p, st) { const k = {}; crossSetup(g); hop(g, k, p, st, g.mode === 'wire' && g.st.u < p.v); return k; },
+    done: crossStopped,
+    closes(toks, g, trace) { return { ...overResult(g, trace, (c) => -c.effort), note: OVER_NOTE + ' Approach speeds of 6 to 15 m/s were tried; below 12 m/s she never got over every span, and 12 costs less than 15, so this is the same run as Over the spans. Most of the effort is the pull on her poles through the bottom of each launch.' }; },
+  },
+
+  // ---- flying (task 4.6, author 2026-09-27): the same start and goal, the cross-spans on, no hits; the section rule dropped
+  fly_wing: {
+    title: 'Most on the wing', kind: 'cross', group: 'cross-span', start: 'still', tMax: 60,
+    what: 'from a standstill to the 6th support flying as much of the way as she can with the wing spread, no cross-span met',
+    params: { v: [14], hard: [true], pump: [1.2], pitch: [8, 14, 20], fold: [0.6, 1.5], commit: [0.4], minFly: [10] },
+    plan(g, p, st) { const k = {}; crossSetup(g); fly(g, k, p, st); return k; },
+    done: crossStopped,
+    closes(toks, g, trace) { const c = flyResult(g, trace); return { ok: c.done, ...c, done: undefined, span_hits: g.spanHits, score: c.done ? c.wing_pc + c.air_pc / 100 : -99 + c.wing_pc / 100,
+      note: 'The wing goes on only above the wires and comes off before she drops back through them; she lets go at the moment the look-ahead says the flight reaches farthest.' }; },
+  },
+  fly_most: {
+    title: 'Most in the air', kind: 'cross', group: 'cross-span', start: 'still', tMax: 60,
+    what: 'from a standstill to the 6th support with her body in the air as much of the way as it can be, by any means: flights with the wing, and the lifted gait between them',
+    params: { v: [10, 14], hard: [true], pump: [1.2], pitch: [8, 14], fold: [1.5], commit: [0.4], minFly: [10], lifted: [false, true], entry: ['pump'] },
+    plan(g, p, st) { const k = {}; crossSetup(g); fly(g, k, p, st); return k; },
+    done: crossStopped,
+    closes(toks, g, trace) { const c = flyResult(g, trace); return { ok: c.done, ...c, done: undefined, span_hits: g.spanHits, score: c.done ? c.air_pc + c.lifted_pc : -99 + (c.air_pc + c.lifted_pc) / 100,
+      note: 'In the air counts her time off the wire and her time riding it lifted, her weight on the wing. Riding lifted between supports was searched too (the pump entry into the lifted gait); it held for at most 7 % of the way and every such run ended on a cross-span, so the best is all flights.' }; },
+  },
 };
 
 /** Every combination of a candidate's parameter grid. */
@@ -222,3 +450,10 @@ export function grid(params) {
   return out;
 }
 export const freshState = () => ({ wingOn: false, pitch: 25 });
+
+// the cross-span demos set their world up before the first step (bus off, cross-spans on), so a replay of their recorded keys needs no plan
+for (const d of Object.values(demos)) if (d.group === 'cross-span') d.setup ??= crossSetup;
+/** Keys as a bitmask, for recorded key timelines (tools/demo.mjs writes them, the page plays them back). */
+export const KEY_ORDER = ['left', 'right', 'up', 'down', 'grip', 'flare', 'wing', 'pitchUp', 'pitchDown', 'hard', 'slow'];
+export const keysToMask = (k) => KEY_ORDER.reduce((m, name, i) => m | (k[name] ? 1 << i : 0), 0);
+export const maskToKeys = (m) => Object.fromEntries(KEY_ORDER.map((name, i) => [name, !!(m & (1 << i))]));
