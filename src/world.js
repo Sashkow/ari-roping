@@ -9,7 +9,7 @@ export function makeWorld(physics, level) {
   const geom = () => { const rear = bus.shoes + B.shoe_overhang; return { shoes: bus.shoes, rear, front: rear + B.length, poleBase: rear + 4.5, roofY, floorY }; };
 
   function distToSegment(px, py, ax, ay, bx, by) {
-    const dx = bx - ax, dy = by - ay, t = Math.min(Math.max(((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy), 0), 1);
+    const dx = bx - ax, dy = by - ay, t = Math.min(Math.max(((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy || 1e-12), 0), 1);   // a zero-length segment is its point
     return Math.hypot(px - ax - t * dx, py - ay - t * dy);
   }
 

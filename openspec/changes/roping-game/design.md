@@ -104,8 +104,10 @@ each turn round the underside from groove line to groove line, along the wire, b
 round and along it back, never above the groove line, a tubular induction motor's ring
 coil cut open for the clamps and closed to a full one in the ring state. Consequences for the model: `hang_limit` is the lips'
 strength, not friction; the shoe is the coil pads' light contact, μ 0.2 on the pole
-load as modelled; the supports cost the tips nothing, and the span-wire zone of task
-4.2 is about the cross-span above the wire, not the clamp on it. Drawn on the page
+load as modelled. *Revised 2026-09-27 (author):* her tips hit the hanger at every support,
+the one that holds the wire up from the cross-span, so with the cross-span on (C) riding
+through a support is a hit and she must get her tips off the wire past each one (a dip:
+let go, tips under the clamp, reach back up; task 4.5). Drawn on the page
 "Pinch Tip on Grooved Wire" (`radio_ocean/notes/demos.md`).
 
 **4. Flight is a spinning rigid body, and the hoop is the far end of the pole control**

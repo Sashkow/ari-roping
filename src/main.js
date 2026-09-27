@@ -19,7 +19,7 @@ export function boot(data, doc) {
   let game, cmds, clock, renderer, keys = {}, paused = false, busOn = !/[#&]nobus/.test(location.hash), lifted = /[#&]lifted/.test(location.hash), assist = null,
       scale = +(/[#&]speed=([\d.]+)/.exec(location.hash) || [0, level.input.time_scale ?? 1])[1], watch = /[#&]watch/.test(location.hash), last = performance.now(), cmd;
   // ---- a demo (#demo=<id>): a candidate of demos.js played by its plan, with its key moments numbered (tasks 12.1, 11.3)
-  const demoId = (/[#&]demo=(\w+)/.exec(location.hash) || [])[1] || (data.page && data.page.defaultDemo), demo = demoId && data.demos && data.demos[demoId] && demos[demoId] ? { ...data.demos[demoId], plan: demos[demoId].plan } : null;
+  const demoId = (/[#&]demo=(\w+)/.exec(location.hash) || [])[1] || (data.page && data.page.defaultDemo), demo = demoId && data.demos && data.demos[demoId] && demos[demoId] ? { ...data.demos[demoId], plan: demos[demoId].plan, done: demos[demoId].done } : null;
   let demoState = freshState(), stopAtMoments = false, moment = -1, seeking = false;
   // ---- the sound of her tips: off until the player picks a variant (browsers want a click before audio)
   let sound = null, soundCtx = null;
@@ -129,6 +129,7 @@ export function boot(data, doc) {
       if (paused) return;
       cmd = cmds.update(demo ? demo.plan(game, demo.params, demoState) : watch ? autopilots.brakePullHoop(game) : keys, dt, watch || demo ? null : padRead); game.step(cmd, dt); if (game.events.includes('arc')) cmds.cancelSpread();
       if (demo) { if (game.won && game.over) { game.over = null; game.passedAt = Infinity; }              // a demo runs on past the win
+        if (demo.done && demo.done(game, demoState)) paused = true;                          // a demo with an end (the cross-span runs) stops there
         const next = moments.findIndex((k) => k.t > game.t - dt - 1e-9 && k.t <= game.t + 1e-9); if (next >= 0) { moment = next; if (stopAtMoments) paused = true; drawMoments(); } }
     });
     renderer.draw(game, game.shown || cmd, level.tuning, demo ? marks() : []); readout();

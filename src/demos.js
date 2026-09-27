@@ -43,9 +43,24 @@ function goLifted(g, k, p, st) {
 // ---- cross-span demos (task 4.5)
 const CROSS_GOAL = 6;
 function crossSetup(g) { if (g.world.bus.on) g.world.setBus(false); g.crossSpanOn = true; }
-/** Past the goal on the wire: brake to a stop (the run ends there). */
-const crossPast = (g) => g.mode === 'wire' && g.st.x >= g.world.spanX(CROSS_GOAL);
-const crossStopped = (g) => crossPast(g) && Math.abs(g.st.u) < 0.3 && Math.abs(g.st.om) < 0.3;
+/** Ride with the poles at `len` m, pushing when `push`; let go `lead` s before the next support's hanger and reach for the wire once
+ *  the tips are past it. The grip key is an edge: a press lets go on the wire, a second press in the air starts the reach. */
+function dip(g, k, p, st, push) {
+  const W = g.world;
+  if (g.mode === 'wire') {
+    k.right = push;
+    if (g.l > p.len + 0.01) k.up = true; else if (g.l < p.len - 0.01) k.down = true;
+    const next = W.spanX(Math.floor((g.st.x - 10) / W.SPAN) + 1);
+    if (next - g.st.x < Math.max(0, g.st.u) * p.lead + 0.02 && !st.pressed) { k.grip = true; st.pressed = true; st.past = next; }
+    else st.pressed = false;
+  } else {
+    st.pressed = false;
+    if (g.tips()[0] > st.past + 0.08 && g.airTime > 0.16 && !g.reaching) k.grip = !st.gripped, st.gripped = !st.gripped; else st.gripped = false;
+  }
+}
+/** The run ends as her tips pass the goal on the wire; the page stops there too. */
+const crossStopped = (g) => g.mode === 'wire' && g.st.x >= g.world.spanX(CROSS_GOAL);
+
 /** Time to the goal, sections caught on the way, top speed, and effort: coil work spent plus the work of pulling the poles in under load. */
 function crossResult(g, trace) {
   const W = g.world, goal = W.spanX(CROSS_GOAL), reach = trace.findIndex((r) => r.tx >= goal), upto = reach < 0 ? trace : trace.slice(0, reach + 1);
@@ -53,7 +68,8 @@ function crossResult(g, trace) {
   let all = true; for (let k = 0; k <= CROSS_GOAL; k++) if (!caught.has(k)) all = false;
   let effort = 0, top = 0; for (const r of upto) { effort += (Math.max(0, r.fCoil * r.u) + Math.max(0, -r.dl * r.tension)) * r.dt; top = Math.max(top, r.u); }
   const done = reach >= 0 && all && g.spanHits === 0 && !g.over;
-  return { done, t: reach >= 0 ? +upto[upto.length - 1].t.toFixed(2) : null, sections: `${[...caught].filter((k) => k >= 0 && k <= CROSS_GOAL).length}/${CROSS_GOAL + 1}`, effort: +(effort / 1000).toFixed(2), top: +(top * 3.6).toFixed(0) };
+  const air = upto.filter((r) => r.mode === 'air').reduce((a, r) => a + r.dt, 0), dips = upto.filter((r, i) => i && r.mode === 'air' && upto[i - 1].mode === 'wire').length;
+  return { done, air: +air.toFixed(2), dips, t: reach >= 0 ? +upto[upto.length - 1].t.toFixed(2) : null, sections: `${[...caught].filter((k) => k >= 0 && k <= CROSS_GOAL).length}/${CROSS_GOAL + 1}`, effort: +(effort / 1000).toFixed(2), top: +(top * 3.6).toFixed(0) };
 }
 
 export const demos = {
@@ -168,41 +184,34 @@ export const demos = {
   },
 
   // ---- the cross-span (task 4.5, author 2026-09-27): from a standstill, bus off, cross-spans on, no wing and no lifted gait.
-  // The goal: her tips past the 6th support (220 m), having caught the wire at least once in every 35 m section on the way.
+  // Her tips hit the hanger at every support, so she dips under each one: lets go just before it, drops a few centimetres,
+  // and reaches back up just past it. The goal: her tips past the 6th support (220 m), the wire caught in every 35 m section.
   cross_ride: {
-    title: 'Clear of the spans', kind: 'cross', group: 'cross-span', start: 'still', tMax: 40,
-    what: 'from a standstill to the 6th support on the wire, never meeting a cross-span: the steady ride',
-    params: { target: [15] },
-    plan(g, p) { const k = {}; crossSetup(g); if (crossPast(g)) k.left = g.st.u > 0.2; else if (g.mode === 'wire') k.right = g.st.u < p.target; return k; },
+    title: 'Under the hangers', kind: 'cross', group: 'cross-span', start: 'still', tMax: 60,
+    what: 'from a standstill to the 6th support at a steady 10 m/s, dipping under the hanger at every support',
+    params: { target: [10], lead: [0.1, 0.12, 0.15], len: [2.0, 2.1, 2.2] },
+    plan(g, p, st) { const k = {}; crossSetup(g); dip(g, k, p, st, g.mode === 'wire' && g.st.u < p.target); return k; },
     done: crossStopped,
-    closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, sections: c.sections, score: c.done ? -c.t : -99,
-      note: 'On the wire her poles and body hang below it, and the cross-spans run 55 cm above it, so riding never meets one: they are a hazard only for a hop.' }; },
+    closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, sections: c.sections, dips: c.dips, score: c.done ? -c.t : -99 - g.spanHits,
+      note: 'Riding into a support her tips would meet the hanger, so at each one she lets go a tenth of a second or so before it, falls a few centimetres with her tips under the clamp, and reaches back for the wire once past it.' }; },
   },
   cross_fast: {
     title: 'Fastest, every section', kind: 'cross', group: 'cross-span', start: 'still', tMax: 40,
-    what: 'the least time from a standstill to the 6th support, catching the wire in every 35 m section and never meeting a cross-span: full power on the wire, or hops inside each section',
-    params: { strategy: ['ride', 'hop'], release: [35, 50, 65], hard: [false, true] },
-    plan(g, p, st) { const k = {}; crossSetup(g); const W = g.world;
-      if (crossPast(g)) k.left = g.st.u > 0.2;
-      else if (g.mode === 'wire') {
-        const tx = g.st.x, sec = Math.ceil((tx - 10) / W.SPAN), left = W.spanX(sec) - tx;
-        if (p.strategy === 'hop' && g.st.u > 12 && st.hopped !== sec && left > 22 && left < W.SPAN - 3) { st.braking = sec; }
-        if (st.braking === sec) { k.left = true; k.hard = p.hard; if (g.st.th >= rad(p.release) && g.st.om > 0) { k.grip = true; st.hopped = sec; st.braking = null; st.target = W.spanX(sec); } }
-        else k.right = true;                                                        // otherwise full power
-      } else { const late = g.fl.x > st.target - 6; if ((g.fl.vy < 0 && g.fl.y < 1.2) || late) k.grip = true; }   // reach on the way down, or before the next support
-      return k; },
+    what: 'the least time from a standstill to the 6th support, full thrust on the wire, dipping under every hanger',
+    params: { lead: [0.08, 0.1, 0.12, 0.15], len: [1.9, 2.0, 2.1, 2.2] },
+    plan(g, p, st) { const k = {}; crossSetup(g); dip(g, k, p, st, g.mode === 'wire'); return k; },
     done: crossStopped,
-    closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, sections: c.sections, hops: toks.filter((x) => x.name === 'REL').length, score: c.done ? -c.t : -99,
-      note: 'Full thrust the whole way wins. The search also tried a brake-and-release hop inside every section; none closed: each hop cost more speed than the flight gave back, and the catch either missed a section or a pole met the next cross-span.' }; },
+    closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, sections: c.sections, dips: c.dips, air_s: c.air, score: c.done ? -c.t : -99 - g.spanHits,
+      note: 'Every moment off the wire is a moment without thrust: seven dips keep her off it for 1.2 s in all. The shortest lead that works wins (a tenth of a second; less and the tips have not dropped clear of the clamp), with poles held at 2.1 m so the reach has room to find the wire again. Hopping over the spans was not searched: each would cost a brake and a release.' }; },
   },
   cross_easy: {
     title: 'Least effort', kind: 'cross', group: 'cross-span', start: 'still', tMax: 60,
-    what: 'the least energy from a standstill to the 6th support within a minute, every section caught, no cross-span met: coil work plus the work of pulling the poles in',
-    params: { target: [4, 5, 6, 7, 8, 10, 12, 15] },
-    plan(g, p) { const k = {}; crossSetup(g); if (crossPast(g)) k.left = g.st.u > 0.2; else if (g.mode === 'wire') k.right = g.st.u < p.target; return k; },
+    what: 'the least energy from a standstill to the 6th support within a minute, dipping under every hanger: coil work plus the work of pulling the poles in',
+    params: { target: [5, 6, 7, 8, 10, 12], lead: [0.1, 0.12, 0.15], len: [2.0, 2.1, 2.2] },
+    plan(g, p, st) { const k = {}; crossSetup(g); dip(g, k, p, st, g.mode === 'wire' && g.st.u < p.target); return k; },
     done: crossStopped,
-    closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, effort_kJ: c.effort, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, score: c.done ? -c.effort : -99,
-      note: 'Held speeds of 4 to 15 m/s were tried; the cheapest was 7 m/s (2.4 kJ). Faster costs more in air drag and in the push to get up to speed; slower costs more too, because the coils switch on and off around the held speed and set her swinging.' }; },
+    closes(toks, g, trace) { const c = crossResult(g, trace); return { ok: c.done, effort_kJ: c.effort, time_s: c.t, top_kmh: c.top, span_hits: g.spanHits, dips: c.dips, score: c.done ? -c.effort : -99 - g.spanHits,
+      note: 'Held speeds of 5 to 12 m/s were tried; the cheapest was 6 m/s (2.3 kJ, 29 s). Each dip costs a little: after the catch her poles are longer and she pulls them back in under load before the next support. Faster costs more in drag and in the push to get up to speed.' }; },
   },
 };
 

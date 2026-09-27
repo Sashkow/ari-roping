@@ -625,30 +625,38 @@
     "y": 0.85
    },
    {
-    "t": 4.415,
+    "t": 4.411,
     "name": "OPEN",
     "note": "opened out of the hoop",
-    "x": 94,
-    "y": -0.06
+    "x": 93.93,
+    "y": -0.03
    },
    {
-    "t": 4.533,
+    "t": 4.502,
     "name": "CATCH",
     "kind": "hard",
     "speed": 71,
-    "l": 1.06,
-    "angle": -30,
+    "l": 1.02,
+    "angle": -48,
     "note": "a hard catch",
-    "x": 96.34,
-    "y": -0.92
+    "x": 95.73,
+    "y": -0.68
    },
    {
-    "t": 4.534,
+    "t": 4.503,
     "name": "PASS",
     "speed": 71,
     "note": "past the trolleybus, on the wire",
-    "x": 96.36,
-    "y": -0.92
+    "x": 95.75,
+    "y": -0.69
+   },
+   {
+    "t": 7.744,
+    "name": "BACK",
+    "speed": 83,
+    "note": "swung back behind her tips",
+    "x": 169.03,
+    "y": -2.39
    }
   ]
  },
@@ -1493,292 +1501,916 @@
   ]
  },
  "cross_ride": {
-  "title": "Clear of the spans",
+  "title": "Under the hangers",
   "kind": "cross",
-  "what": "from a standstill to the 6th support on the wire, never meeting a cross-span: the steady ride",
+  "what": "from a standstill to the 6th support at a steady 10 m/s, dipping under the hanger at every support",
   "group": "cross-span",
   "start": "still",
   "params": {
-   "target": 15
+   "target": 10,
+   "lead": 0.12,
+   "len": 2
   },
   "closes": true,
   "numbers": {
-   "time_s": 16.13,
-   "top_kmh": 55,
+   "time_s": 22.08,
+   "top_kmh": 40,
    "span_hits": 0,
-   "sections": "7/7"
+   "sections": "7/7",
+   "dips": 7
   },
-  "note": "On the wire her poles and body hang below it, and the cross-spans run 55 cm above it, so riding never meets one: they are a hazard only for a hop.",
+  "note": "Riding into a support her tips would meet the hanger, so at each one she lets go a tenth of a second or so before it, falls a few centimetres with her tips under the clamp, and reaches back for the wire once past it.",
   "ended": "time up",
   "tokens": [
    {
-    "t": 5.834,
-    "name": "BACK",
-    "speed": 55,
-    "note": "swung back behind her tips",
-    "x": 61.28,
-    "y": -2.4
+    "t": 0.067,
+    "name": "PULL",
+    "from": 2.39,
+    "to": 2,
+    "note": "pulled the poles in",
+    "x": 0,
+    "y": -2
    },
    {
-    "t": 8.896,
-    "name": "BACK",
-    "speed": 55,
-    "note": "swung back behind her tips",
-    "x": 108.49,
-    "y": -2.4
+    "t": 2.139,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 32,
+    "angle": -3,
+    "l": 2,
+    "note": "let go",
+    "x": 8.88,
+    "y": -2
    },
    {
-    "t": 11.931,
-    "name": "BACK",
-    "speed": 55,
-    "note": "swung back behind her tips",
-    "x": 155.27,
-    "y": -2.4
+    "t": 2.3,
+    "name": "REACH",
+    "height": -2.13,
+    "note": "reached for the wire",
+    "x": 10.31,
+    "y": -2.13
    },
    {
-    "t": 14.938,
-    "name": "BACK",
-    "speed": 55,
-    "note": "swung back behind her tips",
-    "x": 201.63,
-    "y": -2.4
+    "t": 2.31,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 32,
+    "l": 2.15,
+    "angle": -1,
+    "note": "a hard catch",
+    "x": 10.4,
+    "y": -2.15
    },
    {
-    "t": 18.628,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 234.21,
-    "y": -2.4
+    "t": 5.303,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 33,
+    "angle": 3,
+    "l": 2.01,
+    "note": "let go",
+    "x": 43.75,
+    "y": -2
    },
    {
-    "t": 21.978,
-    "name": "BACK",
-    "speed": 0,
-    "note": "swung back behind her tips",
-    "x": 230.02,
-    "y": -2.4
+    "t": 5.464,
+    "name": "REACH",
+    "height": -2.15,
+    "note": "reached for the wire",
+    "x": 45.22,
+    "y": -2.15
    },
    {
-    "t": 25.266,
-    "name": "BACK",
-    "speed": -3,
-    "note": "swung back behind her tips",
-    "x": 225.99,
-    "y": -2.4
+    "t": 5.476,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 33,
+    "l": 2.19,
+    "angle": -7,
+    "note": "a hard catch",
+    "x": 45.33,
+    "y": -2.17
    },
    {
-    "t": 28.555,
+    "t": 8.383,
     "name": "BACK",
-    "speed": -4,
+    "speed": 39,
     "note": "swung back behind her tips",
-    "x": 221.63,
-    "y": -2.4
+    "x": 76.96,
+    "y": -2.01
    },
    {
-    "t": 32.373,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 222.38,
-    "y": -2.4
+    "t": 8.541,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 35,
+    "angle": -6,
+    "l": 2.01,
+    "note": "let go",
+    "x": 78.49,
+    "y": -2
    },
    {
-    "t": 35.543,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 223.95,
-    "y": -2.4
+    "t": 8.554,
+    "name": "APEX",
+    "height": -1.99,
+    "speed": 35,
+    "note": "the top of the flight",
+    "x": 78.61,
+    "y": -1.99
    },
    {
-    "t": 38.714,
+    "t": 8.702,
+    "name": "REACH",
+    "height": -2.1,
+    "note": "reached for the wire",
+    "x": 80.04,
+    "y": -2.1
+   },
+   {
+    "t": 8.713,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 34,
+    "l": 2.17,
+    "angle": -12,
+    "note": "a hard catch",
+    "x": 80.14,
+    "y": -2.12
+   },
+   {
+    "t": 10.968,
     "name": "BACK",
-    "speed": 2,
+    "speed": 38,
     "note": "swung back behind her tips",
-    "x": 225.53,
-    "y": -2.4
+    "x": 103.98,
+    "y": -2.01
+   },
+   {
+    "t": 11.904,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 37,
+    "angle": -10,
+    "l": 2.01,
+    "note": "let go",
+    "x": 113.38,
+    "y": -1.98
+   },
+   {
+    "t": 11.906,
+    "name": "APEX",
+    "height": -1.98,
+    "speed": 37,
+    "note": "the top of the flight",
+    "x": 113.41,
+    "y": -1.98
+   },
+   {
+    "t": 12.065,
+    "name": "REACH",
+    "height": -2.1,
+    "note": "reached for the wire",
+    "x": 115.04,
+    "y": -2.1
+   },
+   {
+    "t": 12.075,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 37,
+    "l": 2.16,
+    "angle": -11,
+    "note": "a hard catch",
+    "x": 115.15,
+    "y": -2.12
+   },
+   {
+    "t": 13.704,
+    "name": "BACK",
+    "speed": 37,
+    "note": "swung back behind her tips",
+    "x": 132.22,
+    "y": -2.01
+   },
+   {
+    "t": 15.321,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 39,
+    "angle": -5,
+    "l": 2.01,
+    "note": "let go",
+    "x": 148.6,
+    "y": -2
+   },
+   {
+    "t": 15.482,
+    "name": "REACH",
+    "height": -2.13,
+    "note": "reached for the wire",
+    "x": 150.33,
+    "y": -2.13
+   },
+   {
+    "t": 15.492,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 38,
+    "l": 2.15,
+    "angle": -2,
+    "note": "a hard catch",
+    "x": 150.43,
+    "y": -2.15
+   },
+   {
+    "t": 18.615,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 38,
+    "angle": -2,
+    "l": 2.01,
+    "note": "let go",
+    "x": 183.64,
+    "y": -2.01
+   },
+   {
+    "t": 18.616,
+    "name": "APEX",
+    "height": -2.01,
+    "speed": 38,
+    "note": "the top of the flight",
+    "x": 183.65,
+    "y": -2.01
+   },
+   {
+    "t": 18.776,
+    "name": "REACH",
+    "height": -2.13,
+    "note": "reached for the wire",
+    "x": 185.34,
+    "y": -2.13
+   },
+   {
+    "t": 18.786,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 38,
+    "l": 2.15,
+    "angle": -2,
+    "note": "a hard catch",
+    "x": 185.44,
+    "y": -2.15
+   },
+   {
+    "t": 21.961,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 38,
+    "angle": -2,
+    "l": 2.01,
+    "note": "let go",
+    "x": 218.66,
+    "y": -2.01
+   },
+   {
+    "t": 21.962,
+    "name": "APEX",
+    "height": -2.01,
+    "speed": 38,
+    "note": "the top of the flight",
+    "x": 218.67,
+    "y": -2.01
+   },
+   {
+    "t": 22.122,
+    "name": "REACH",
+    "height": -2.13,
+    "note": "reached for the wire",
+    "x": 220.33,
+    "y": -2.13
+   },
+   {
+    "t": 22.132,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 37,
+    "l": 2.15,
+    "angle": -3,
+    "note": "a hard catch",
+    "x": 220.43,
+    "y": -2.15
    }
   ]
  },
  "cross_fast": {
   "title": "Fastest, every section",
   "kind": "cross",
-  "what": "the least time from a standstill to the 6th support, catching the wire in every 35 m section and never meeting a cross-span: full power on the wire, or hops inside each section",
+  "what": "the least time from a standstill to the 6th support, full thrust on the wire, dipping under every hanger",
   "group": "cross-span",
   "start": "still",
   "params": {
-   "strategy": "ride",
-   "release": 35,
-   "hard": false
+   "lead": 0.15,
+   "len": 2.1
   },
   "closes": true,
   "numbers": {
-   "time_s": 11.03,
-   "top_kmh": 125,
+   "time_s": 11.58,
+   "top_kmh": 114,
    "span_hits": 0,
    "sections": "7/7",
-   "hops": 0
+   "dips": 7,
+   "air_s": 1.2
   },
-  "note": "Full thrust the whole way wins. The search also tried a brake-and-release hop inside every section; none closed: each hop cost more speed than the flight gave back, and the catch either missed a section or a pole met the next cross-span.",
+  "note": "Every moment off the wire is a moment without thrust: seven dips keep her off it for 1.2 s in all. The shortest lead that works wins (a tenth of a second; less and the tips have not dropped clear of the clamp), with poles held at 2.1 m so the reach has room to find the wire again. Hopping over the spans was not searched: each would cost a brake and a release.",
   "ended": "time up",
   "tokens": [
    {
-    "t": 16.092,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 295.19,
-    "y": -2.4
+    "t": 2.114,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 33,
+    "angle": -4,
+    "l": 2.11,
+    "note": "let go",
+    "x": 8.63,
+    "y": -2.1
    },
    {
-    "t": 19.309,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 296.79,
-    "y": -2.4
+    "t": 2.277,
+    "name": "REACH",
+    "height": -2.24,
+    "note": "reached for the wire",
+    "x": 10.12,
+    "y": -2.24
    },
    {
-    "t": 22.522,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 298.37,
-    "y": -2.4
+    "t": 2.288,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 33,
+    "l": 2.26,
+    "angle": 1,
+    "note": "a hard catch",
+    "x": 10.22,
+    "y": -2.26
    },
    {
-    "t": 25.732,
+    "t": 2.402,
     "name": "BACK",
-    "speed": 2,
+    "speed": 35,
     "note": "swung back behind her tips",
-    "x": 299.97,
-    "y": -2.4
+    "x": 11.23,
+    "y": -2.11
    },
    {
-    "t": 28.94,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 301.56,
-    "y": -2.4
+    "t": 4.645,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 62,
+    "angle": -8,
+    "l": 2.11,
+    "note": "let go",
+    "x": 41.88,
+    "y": -2.09
    },
    {
-    "t": 32.143,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 303.14,
-    "y": -2.4
+    "t": 4.669,
+    "name": "APEX",
+    "height": -2.08,
+    "speed": 62,
+    "note": "the top of the flight",
+    "x": 42.29,
+    "y": -2.08
    },
    {
-    "t": 35.344,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 304.73,
-    "y": -2.4
+    "t": 4.806,
+    "name": "REACH",
+    "height": -2.18,
+    "note": "reached for the wire",
+    "x": 44.62,
+    "y": -2.18
    },
    {
-    "t": 38.543,
-    "name": "BACK",
-    "speed": 2,
-    "note": "swung back behind her tips",
-    "x": 306.32,
-    "y": -2.4
+    "t": 4.818,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 61,
+    "l": 2.28,
+    "angle": -16,
+    "note": "a hard catch",
+    "x": 44.82,
+    "y": -2.19
+   },
+   {
+    "t": 6.382,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 82,
+    "angle": -38,
+    "l": 2.11,
+    "note": "let go",
+    "x": 75.4,
+    "y": -1.65
+   },
+   {
+    "t": 6.543,
+    "name": "REACH",
+    "height": -1.89,
+    "note": "reached for the wire",
+    "x": 79.06,
+    "y": -1.89
+   },
+   {
+    "t": 6.556,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 81,
+    "l": 2.29,
+    "angle": -33,
+    "note": "a hard catch",
+    "x": 79.35,
+    "y": -1.92
+   },
+   {
+    "t": 7.783,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 93,
+    "angle": -41,
+    "l": 2.1,
+    "note": "let go",
+    "x": 109.62,
+    "y": -1.58
+   },
+   {
+    "t": 7.862,
+    "name": "APEX",
+    "height": -1.55,
+    "speed": 93,
+    "note": "the top of the flight",
+    "x": 111.66,
+    "y": -1.55
+   },
+   {
+    "t": 7.944,
+    "name": "REACH",
+    "height": -1.59,
+    "note": "reached for the wire",
+    "x": 113.75,
+    "y": -1.59
+   },
+   {
+    "t": 7.96,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 92,
+    "l": 2.34,
+    "angle": -47,
+    "note": "a hard catch",
+    "x": 114.16,
+    "y": -1.6
+   },
+   {
+    "t": 9.069,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 100,
+    "angle": -26,
+    "l": 2.11,
+    "note": "let go",
+    "x": 144.75,
+    "y": -1.89
+   },
+   {
+    "t": 9.127,
+    "name": "APEX",
+    "height": -1.88,
+    "speed": 99,
+    "note": "the top of the flight",
+    "x": 146.35,
+    "y": -1.88
+   },
+   {
+    "t": 9.23,
+    "name": "REACH",
+    "height": -1.93,
+    "note": "reached for the wire",
+    "x": 149.17,
+    "y": -1.93
+   },
+   {
+    "t": 9.243,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 97,
+    "l": 2.29,
+    "angle": -32,
+    "note": "a hard catch",
+    "x": 149.52,
+    "y": -1.94
+   },
+   {
+    "t": 10.28,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 106,
+    "angle": -40,
+    "l": 2.11,
+    "note": "let go",
+    "x": 179.14,
+    "y": -1.61
+   },
+   {
+    "t": 10.327,
+    "name": "APEX",
+    "height": -1.6,
+    "speed": 106,
+    "note": "the top of the flight",
+    "x": 180.52,
+    "y": -1.6
+   },
+   {
+    "t": 10.441,
+    "name": "REACH",
+    "height": -1.66,
+    "note": "reached for the wire",
+    "x": 183.84,
+    "y": -1.66
+   },
+   {
+    "t": 10.456,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 104,
+    "l": 2.32,
+    "angle": -44,
+    "note": "a hard catch",
+    "x": 184.28,
+    "y": -1.68
+   },
+   {
+    "t": 11.433,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 111,
+    "angle": -30,
+    "l": 2.11,
+    "note": "let go",
+    "x": 214.22,
+    "y": -1.82
+   },
+   {
+    "t": 11.484,
+    "name": "APEX",
+    "height": -1.81,
+    "speed": 110,
+    "note": "the top of the flight",
+    "x": 215.79,
+    "y": -1.81
+   },
+   {
+    "t": 11.594,
+    "name": "REACH",
+    "height": -1.87,
+    "note": "reached for the wire",
+    "x": 219.12,
+    "y": -1.87
+   },
+   {
+    "t": 11.607,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 108,
+    "l": 2.29,
+    "angle": -35,
+    "note": "a hard catch",
+    "x": 219.51,
+    "y": -1.88
    }
   ]
  },
  "cross_easy": {
   "title": "Least effort",
   "kind": "cross",
-  "what": "the least energy from a standstill to the 6th support within a minute, every section caught, no cross-span met: coil work plus the work of pulling the poles in",
+  "what": "the least energy from a standstill to the 6th support within a minute, dipping under every hanger: coil work plus the work of pulling the poles in",
   "group": "cross-span",
   "start": "still",
   "params": {
-   "target": 7
+   "target": 6,
+   "lead": 0.1,
+   "len": 2.1
   },
   "closes": true,
   "numbers": {
-   "effort_kJ": 2.41,
-   "time_s": 28.28,
-   "top_kmh": 29,
-   "span_hits": 0
+   "effort_kJ": 2.27,
+   "time_s": 28.93,
+   "top_kmh": 32,
+   "span_hits": 0,
+   "dips": 7
   },
-  "note": "Held speeds of 4 to 15 m/s were tried; the cheapest was 7 m/s (2.4 kJ). Faster costs more in air drag and in the push to get up to speed; slower costs more too, because the coils switch on and off around the held speed and set her swinging.",
+  "note": "Held speeds of 5 to 12 m/s were tried; the cheapest was 6 m/s (2.3 kJ, 29 s). Each dip costs a little: after the catch her poles are longer and she pulls them back in under load before the next support. Faster costs more in drag and in the push to get up to speed.",
   "ended": "time up",
   "tokens": [
    {
-    "t": 3.776,
-    "name": "BACK",
-    "speed": 29,
-    "note": "swung back behind her tips",
-    "x": 22.31,
-    "y": -2.4
+    "t": 2.204,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 33,
+    "angle": 4,
+    "l": 2.11,
+    "note": "let go",
+    "x": 9.45,
+    "y": -2.1
    },
    {
-    "t": 6.889,
-    "name": "BACK",
-    "speed": 29,
-    "note": "swung back behind her tips",
-    "x": 47.42,
-    "y": -2.4
+    "t": 2.22,
+    "name": "APEX",
+    "height": -2.1,
+    "speed": 33,
+    "note": "the top of the flight",
+    "x": 9.6,
+    "y": -2.1
    },
    {
-    "t": 9.997,
-    "name": "BACK",
-    "speed": 29,
-    "note": "swung back behind her tips",
-    "x": 72.49,
-    "y": -2.4
+    "t": 2.365,
+    "name": "REACH",
+    "height": -2.2,
+    "note": "reached for the wire",
+    "x": 10.9,
+    "y": -2.2
    },
    {
-    "t": 13.101,
-    "name": "BACK",
-    "speed": 29,
-    "note": "swung back behind her tips",
-    "x": 97.53,
-    "y": -2.4
+    "t": 2.378,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 32,
+    "l": 2.3,
+    "angle": 15,
+    "note": "a hard catch",
+    "x": 11.02,
+    "y": -2.22
    },
    {
-    "t": 16.201,
+    "t": 2.897,
     "name": "BACK",
-    "speed": 29,
+    "speed": 32,
     "note": "swung back behind her tips",
-    "x": 122.54,
-    "y": -2.4
+    "x": 15.09,
+    "y": -2.11
    },
    {
-    "t": 19.298,
+    "t": 5.811,
     "name": "BACK",
-    "speed": 29,
+    "speed": 32,
     "note": "swung back behind her tips",
-    "x": 147.52,
-    "y": -2.4
+    "x": 41.22,
+    "y": -2.11
    },
    {
-    "t": 22.391,
-    "name": "BACK",
-    "speed": 29,
-    "note": "swung back behind her tips",
-    "x": 172.47,
-    "y": -2.4
+    "t": 6.132,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 28,
+    "angle": -11,
+    "l": 2.11,
+    "note": "let go",
+    "x": 43.7,
+    "y": -2.07
    },
    {
-    "t": 25.481,
-    "name": "BACK",
-    "speed": 29,
-    "note": "swung back behind her tips",
-    "x": 197.39,
-    "y": -2.4
+    "t": 6.154,
+    "name": "APEX",
+    "height": -2.07,
+    "speed": 28,
+    "note": "the top of the flight",
+    "x": 43.87,
+    "y": -2.07
    },
    {
-    "t": 30.506,
+    "t": 6.293,
+    "name": "REACH",
+    "height": -2.16,
+    "note": "reached for the wire",
+    "x": 44.96,
+    "y": -2.16
+   },
+   {
+    "t": 6.304,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 28,
+    "l": 2.27,
+    "angle": -16,
+    "note": "a hard catch",
+    "x": 45.05,
+    "y": -2.18
+   },
+   {
+    "t": 8.243,
     "name": "BACK",
-    "speed": 2,
+    "speed": 28,
     "note": "swung back behind her tips",
-    "x": 224.89,
-    "y": -2.4
+    "x": 60.8,
+    "y": -2.11
+   },
+   {
+    "t": 10.603,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 27,
+    "angle": 10,
+    "l": 2.11,
+    "note": "let go",
+    "x": 79.58,
+    "y": -2.08
+   },
+   {
+    "t": 10.764,
+    "name": "REACH",
+    "height": -2.21,
+    "note": "reached for the wire",
+    "x": 80.8,
+    "y": -2.21
+   },
+   {
+    "t": 10.774,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 27,
+    "l": 2.26,
+    "angle": 9,
+    "note": "a hard catch",
+    "x": 80.87,
+    "y": -2.23
+   },
+   {
+    "t": 11.276,
+    "name": "BACK",
+    "speed": 27,
+    "note": "swung back behind her tips",
+    "x": 84.29,
+    "y": -2.11
+   },
+   {
+    "t": 14.183,
+    "name": "BACK",
+    "speed": 27,
+    "note": "swung back behind her tips",
+    "x": 106.18,
+    "y": -2.11
+   },
+   {
+    "t": 15.253,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 29,
+    "angle": -11,
+    "l": 2.11,
+    "note": "let go",
+    "x": 113.83,
+    "y": -2.07
+   },
+   {
+    "t": 15.414,
+    "name": "REACH",
+    "height": -2.21,
+    "note": "reached for the wire",
+    "x": 115.1,
+    "y": -2.21
+   },
+   {
+    "t": 15.424,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 28,
+    "l": 2.25,
+    "angle": -9,
+    "note": "a hard catch",
+    "x": 115.18,
+    "y": -2.22
+   },
+   {
+    "t": 17.223,
+    "name": "BACK",
+    "speed": 28,
+    "note": "swung back behind her tips",
+    "x": 129.71,
+    "y": -2.11
+   },
+   {
+    "t": 19.699,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 28,
+    "angle": 4,
+    "l": 2.11,
+    "note": "let go",
+    "x": 149.35,
+    "y": -2.1
+   },
+   {
+    "t": 19.86,
+    "name": "REACH",
+    "height": -2.23,
+    "note": "reached for the wire",
+    "x": 150.59,
+    "y": -2.23
+   },
+   {
+    "t": 19.87,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 28,
+    "l": 2.25,
+    "angle": 3,
+    "note": "a hard catch",
+    "x": 150.66,
+    "y": -2.25
+   },
+   {
+    "t": 20.304,
+    "name": "BACK",
+    "speed": 28,
+    "note": "swung back behind her tips",
+    "x": 153.85,
+    "y": -2.11
+   },
+   {
+    "t": 23.197,
+    "name": "BACK",
+    "speed": 28,
+    "note": "swung back behind her tips",
+    "x": 175.95,
+    "y": -2.11
+   },
+   {
+    "t": 24.28,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 28,
+    "angle": -7,
+    "l": 2.11,
+    "note": "let go",
+    "x": 183.97,
+    "y": -2.09
+   },
+   {
+    "t": 24.441,
+    "name": "REACH",
+    "height": -2.22,
+    "note": "reached for the wire",
+    "x": 185.22,
+    "y": -2.22
+   },
+   {
+    "t": 24.451,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 28,
+    "l": 2.25,
+    "angle": -6,
+    "note": "a hard catch",
+    "x": 185.29,
+    "y": -2.24
+   },
+   {
+    "t": 26.14,
+    "name": "BACK",
+    "speed": 28,
+    "note": "swung back behind her tips",
+    "x": 198.54,
+    "y": -2.11
+   },
+   {
+    "t": 28.829,
+    "name": "REL",
+    "kind": "hand",
+    "speed": 27,
+    "angle": 1,
+    "l": 2.11,
+    "note": "let go",
+    "x": 219.26,
+    "y": -2.11
+   },
+   {
+    "t": 28.99,
+    "name": "REACH",
+    "height": -2.24,
+    "note": "reached for the wire",
+    "x": 220.47,
+    "y": -2.24
+   },
+   {
+    "t": 29,
+    "name": "CATCH",
+    "kind": "hard",
+    "speed": 27,
+    "l": 2.25,
+    "angle": 0,
+    "note": "a hard catch",
+    "x": 220.54,
+    "y": -2.25
    }
   ]
  }

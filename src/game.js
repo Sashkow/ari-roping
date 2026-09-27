@@ -35,13 +35,24 @@ export function makeGame(physics, level, opts = {}) {
   const CS_M = physics.body.mass + physics.body.poles_mass;
   const CS_BREAK_J = CS ? (() => { const x2 = ((CS.breaking - CS.pretension) * CS.length * CS.length) / (2 * CS.ea); return (2 * CS.pretension * x2) / CS.length + (2 * CS.ea * x2 * x2) / CS.length ** 3; })() : Infinity;
   g.crossSpanBreakSpeed = Math.sqrt((2 * CS_BREAK_J) / CS_M);
-  function crossSpan(hx, hy, tail, reach) {
+  /** Distance between segments ab and cd (0 when they cross). */
+  const segDist = (a, b, c, d) => {
+    const cr = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+    if (cr(a, b, c) * cr(a, b, d) < 0 && cr(c, d, a) * cr(c, d, b) < 0) return 0;
+    const D = world.distToSegment;
+    return Math.min(D(...a, ...c, ...d), D(...b, ...c, ...d), D(...c, ...a, ...b), D(...d, ...a, ...b));
+  };
+  // the cross-span and the hanger that holds the wire from it at every support (author, 2026-09-27: her tips hit the hanger,
+  // so riding the wire through a support is a hit too): a vertical segment from the wire up to the span, seen end-on
+  function crossSpan(hx, hy, tail, reach, tip0) {
     if (!CS) return;
     const [tx, ty] = g.tips(), k0 = Math.round((hx - 10) / world.SPAN);
     for (const k of [k0 - 1, k0, k0 + 1]) {
       if (world.broken.has(k)) continue;
-      const sx = world.spanX(k), sy = CS.height;
-      const d = Math.min(world.distToSegment(sx, sy, hx, hy, tx, ty), world.distToSegment(sx, sy, hx, hy, hx + reach * Math.cos(tail), hy + reach * Math.sin(tail)));
+      const sx = world.spanX(k), hanger = [[sx, 0], [sx, CS.height]], head = [hx, hy];
+      const d = Math.min(segDist(head, [tx, ty], ...hanger), segDist(head, [hx + reach * Math.cos(tail), hy + reach * Math.sin(tail)], ...hanger),
+                         segDist(tip0, [tx, ty], ...hanger));                                // the tips' own path this step: riding into the hanger
+      const sy = Math.min(Math.max(ty, 0), CS.height);
       if (d > CS.radius || (g.lastSpanHit.k === k && g.t - g.lastSpanHit.t < 0.3)) continue;
       g.lastSpanHit = { k, t: g.t }; g.spanHits++; g.spark = { x: sx, y: sy, until: g.t + CS.spark }; g.events.push('span');
       if (g.mode === 'wire') { g.fl = F.release(g.st, g.l, g.dl); g.mode = 'air'; g.releases++; g.airTime = 0; g.apex = g.fl.y; g.turns = 0; g.phi0 = g.fl.phi; }
@@ -66,7 +77,7 @@ export function makeGame(physics, level, opts = {}) {
     g.t += dt; world.step(dt); g.events.length = 0;
     if (g.arcing()) cmd = { ...cmd, spread: false };
     g.shown = cmd;          // while the arc burns she cannot flare or fly: her body stays narrow
-    const [hx0, hy0] = g.head();
+    const [hx0, hy0] = g.head(), tip0 = g.tips();
     if (g.mode === 'wire') {
       const l0 = g.l;
       g.l = clamp(g.l + cmd.poleRate * dt, L_MIN, L_MAX); g.dl = (g.l - l0) / dt;
@@ -95,7 +106,7 @@ export function makeGame(physics, level, opts = {}) {
     if (!g.over && cmd.spread && hy0 * hy < 0) { g.arcUntil = g.t + T.arc_seconds; g.arcs++; g.events.push('arc'); }
     const curl = g.mode === 'air' && g.fl ? g.fl.curl || 0 : 0, reach = LB + (F.ringDiameter(g.poleLength()) - LB) * curl;   // the hoop is compact
     if (!g.over) g.over = world.hit([[hx, hy], [hx + reach * Math.cos(tail), hy + reach * Math.sin(tail)]]);
-    if (!g.over && g.crossSpanOn) crossSpan(hx, hy, tail, reach);
+    if (!g.over && g.crossSpanOn) crossSpan(hx, hy, tail, reach, tip0);
     if (!g.over && world.bus.on && g.mode === 'wire' && g.catches > 0 && g.st.x > world.geom().front + 3) {
       g.passedAt ??= g.t;
       if (g.t - g.passedAt > 1.5) { g.over = 'She is past the trolleybus.'; g.won = true; }

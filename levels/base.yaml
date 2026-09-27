@@ -10,6 +10,7 @@ tuning:
   body_load_limit_g: 14    # not enforced yet; the solved two-gaits drive is 14.8 g since the tips became a mass, so about 25 when it is wired in
   reach_speed: 14.0        # m/s, how fast her poles run toward the wire while grip is held in the air
   catch_absorb: 8.0        # m/s along the poles that a catch can absorb
+  reach_past: 0.03         # m, how far past the wire a reach from below aims (flight.js)
   spin_damping_spread: 0.4 # s, time constant of spin decay while spread in the air
   arc_seconds: 3.0         # s an arc burns between her and the wire after she touches both wires spread; no flare, no wing meanwhile
   hoop_hold: 0.12          # s of holding pull-in at the shortest pole length, in the air, before she curls into the hoop

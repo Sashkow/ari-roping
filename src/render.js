@@ -17,7 +17,7 @@ export function makeRenderer(canvas, world, physics) {
   const X = (x) => (x - camX) * S + W * 0.38, Y = (y) => H - (WIRE_H + y + 0.9) * S;
   const line = (x1, y1, x2, y2, col, w, dash) => { ctx.beginPath(); ctx.setLineDash(dash || []); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.stroke(); ctx.setLineDash([]); };
 
-  function drawWorld() {
+  function drawWorld(game) {
     const grad = ctx.createLinearGradient(0, 0, 0, Y(-WIRE_H)); grad.addColorStop(0, C.sky1); grad.addColorStop(1, C.sky2);
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = C.city;
@@ -32,7 +32,8 @@ export function makeRenderer(canvas, world, physics) {
     for (let k = n0; k <= n0 + Math.ceil((2 * W) / S / world.SPAN) + 1; k++) {
       const sx = X(k * world.SPAN + 10);
       line(sx, Y(-WIRE_H), sx, Y(1.1), C.muted, Math.max(2, 0.14 * S));
-      if (!world.broken.has(k)) line(sx - 0.5 * S, Y(0.55), sx + 0.5 * S, Y(0.55), C.muted, 1.5);   // the cross-span, seen end-on; gone once snapped
+      if (!world.broken.has(k)) { line(sx - 0.5 * S, Y(0.55), sx + 0.5 * S, Y(0.55), C.muted, 1.5);   // the cross-span, seen end-on; gone once snapped
+        if (game && game.crossSpanOn) { line(sx, Y(0.55), sx, Y(0), C.ink, 1.5); line(sx - 0.08 * S, Y(0.02), sx + 0.08 * S, Y(0.02), C.ink, 3); } }   // the hanger down to its clamp on the wire, a hazard with C on
       else { line(sx - 0.5 * S, Y(0.55), sx - 0.12 * S, Y(0.2), C.muted, 1.2); line(sx + 0.5 * S, Y(0.55), sx + 0.15 * S, Y(0.15), C.muted, 1.2); }
     }
     line(0, Y(0.12), W, Y(0.12), C.muted, 1); line(0, Y(0), W, Y(0), C.ink, 1.6);
@@ -143,7 +144,7 @@ export function makeRenderer(canvas, world, physics) {
       const wantH = Math.max(11.6, WIRE_H + hy + 3.5);              // widen when she climbs
       viewH += (wantH - viewH) * 0.08; S = H / viewH;
       const lead = clamp(vx * 0.35, 2, 10); camX += (hx + lead - camX) * 0.15;
-      ctx.clearRect(0, 0, W, H); drawWorld(); if (game.arcing()) drawArc(game); drawAri(game, cmd, false);
+      ctx.clearRect(0, 0, W, H); drawWorld(game); if (game.arcing()) drawArc(game); drawAri(game, cmd, false);
       if (game.spark && game.t < game.spark.until) {                  // the cross-span spark: a white core, a blue fringe, a few orange sparks
         const px = X(game.spark.x), py = Y(game.spark.y), life = (game.spark.until - game.t) / 0.15;
         ctx.save(); ctx.globalAlpha = Math.max(0, life); ctx.fillStyle = '#FFFFFF'; ctx.shadowColor = '#7FB8FF'; ctx.shadowBlur = 24; ctx.beginPath(); ctx.arc(px, py, Math.max(5, 0.12 * S), 0, 7); ctx.fill();

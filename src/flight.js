@@ -60,7 +60,10 @@ export function makeFlight(P, physics, tuning) {
     let dl = open ? ctl.poleRate || 0 : 0;
     if (grip && open) {
       const s = Math.sin(f.phi), need = Math.abs(s) > 1e-6 ? -f.y / s : Infinity;     // length at which the tip meets the wire
-      const target = need >= L_MIN && need <= L_MAX ? need : L_MAX;
+      // from below the wire the falling body keeps pulling the tip back, so a reach aimed exactly at the wire creeps up on it and
+      // never crosses; it aims a little past it instead (from above the fall carries the tip through, as before)
+      const over = f.y + f.l * s < 0 && s > 0 ? tuning.reach_past ?? 0.03 : 0;
+      const target = need >= L_MIN && need <= L_MAX ? Math.min(need + over, L_MAX) : L_MAX;
       dl = Math.min(Math.max((target - f.l) / dt, -tuning.reach_speed), tuning.reach_speed);
     }
     const tipBefore = f.y + f.l * Math.sin(f.phi);
