@@ -44,4 +44,13 @@ balance:                   # the lifted gait is an inverted pendulum; this is th
   lead_rate_deg: 15        # per second
   engage_deg: 35           # it only acts once she is this far ahead of her tips: below, an open wing just drags her back
   pitch_min_deg: 2
+cross_span:                # the steel cross-wire at every support that holds the two contact wires up (author, 2026-09-27); a hazard only with the C key on
+  height: 0.55             # m above the contact-wire plane (notes/scenes/ari-roping/ari-roping.md)
+  radius: 0.05             # m, the rope plus the half-thickness of whatever of hers touches it
+  pretension: 8000         # N, a tram/trolleybus span wire
+  length: 25               # m, across the street
+  ea: 3.0e+6               # N, axial stiffness of an 8 mm galvanised steel rope (E about 100 GPa on 30 mm2 of steel)
+  breaking: 40000          # N, the rope's breaking load
+  restitution: 0.15        # below the break speed she comes back off it at this share of her speed: most of the energy goes into her poles bending and her body wrapping round the rope
+  spark: 0.15              # s, how long the spark shows
 ghost: null

@@ -15,6 +15,7 @@ const KEYMAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDow
 
 export function boot(data, doc) {
   const $ = (id) => doc.getElementById(id), level = data.levels[0], dt = level.tuning.step;
+  let crossOn = /[#&]crossspan/.test(location.hash);
   let game, cmds, clock, renderer, keys = {}, paused = false, busOn = !/[#&]nobus/.test(location.hash), lifted = /[#&]lifted/.test(location.hash), assist = null,
       scale = +(/[#&]speed=([\d.]+)/.exec(location.hash) || [0, level.input.time_scale ?? 1])[1], watch = /[#&]watch/.test(location.hash), last = performance.now(), cmd;
   // ---- a demo (#demo=<id>): a candidate of demos.js played by its plan, with its key moments numbered (tasks 12.1, 11.3)
@@ -92,6 +93,7 @@ export function boot(data, doc) {
     if (demo) lifted = demo.start === 'lifted';
     game = makeGame(data.physics, level, { gait: lifted ? 'lifted' : 'pulled' }); cmds = makeCommands({ ...level.input, balance: level.balance });
     if (assist !== null) game.assistOn = assist;
+    game.crossSpanOn = crossOn;
     if (lifted) cmds.state.wingOn = true; clock = makeClock(dt); cmd = cmds.update({}, dt);
     demoState = freshState(); if (!seeking) { moment = -1; paused = false; } drawMoments();
     game.world.setBus(busOn, 0);
@@ -112,6 +114,7 @@ export function boot(data, doc) {
       ['spin', g.mode === 'wire' ? `${(g.st.om / (2 * Math.PI)).toFixed(2)} turns/s (swing)` : `${(g.F.spin(g.fl) / (2 * Math.PI)).toFixed(2)} turns/s  (↑ faster, ↓ slower)`],
       ['poles', g.mode === 'wire' && o ? (o.tension >= 0 ? `pull ${(o.tension / g.P.W).toFixed(1)} g` : `push ${(-o.tension).toFixed(0)} N`) : 'free'],
       ['body', g.arcing() ? `narrow: arc burning, ${(g.arcUntil - g.t).toFixed(1)} s` : cmd.spread ? `spread, pitch ${deg(cmd.pitch).toFixed(0)}°` : 'narrow'],
+      ['cross-spans', !g.crossSpanOn ? 'off (C)' : `on (C): she bounces off below ${(g.crossSpanBreakSpeed * 3.6).toFixed(0)} km/h, snaps it above${g.lastSpanSpeed ? `; last hit ${(g.lastSpanSpeed.before * 3.6).toFixed(0)} → ${(g.lastSpanSpeed.after * 3.6).toFixed(0)} km/h${g.lastSpanSpeed.broke ? ', snapped' : ', bounced'}` : ''}`],
       ['balance assist', !g.assistOn ? 'off (T, or the radio\'s button)' : !g.balance ? 'on, waiting: wing on and 35° ahead of her tips' : g.balance.ok ? `holding ${deg(g.balance.lead).toFixed(0)}° lead, pitch ${deg(g.balance.pitch).toFixed(1)}°` : `too slow to fly at ${deg(g.balance.lead).toFixed(0)}° lead`],
       ['lift', g.mode === 'wire' && o ? `${((100 * o.lift) / g.P.W).toFixed(0)} % of her weight` : '—'],
       ['above the wires', `${head[1].toFixed(1)} m`],
@@ -145,6 +148,7 @@ export function boot(data, doc) {
     if (e.key === '[' || e.key === ']') { const S = level.input.time_scales || [0.25, 0.5, 1], i = S.reduce((b, v, j) => (Math.abs(v - scale) < Math.abs(S[b] - scale) ? j : b), 0); scale = S[Math.min(Math.max(i + (e.key === ']' ? 1 : -1), 0), S.length - 1)]; return; }
     if (e.key === 't' || e.key === 'T') { assist = !game.assistOn; game.assistOn = assist; return; }
     if (e.key === 'l' || e.key === 'L') { lifted = !lifted; restart(); return; }
+    if (e.key === 'c' || e.key === 'C') { crossOn = !crossOn; game.crossSpanOn = crossOn; return; }   // the cross-spans as a hazard, off by default
     if (e.key === 'b' || e.key === 'B') { busOn = !busOn; game.world.setBus(busOn, game.tips()[0]); game.passedAt = null; return; }   // free practice: no trolleybus; back on, it appears ahead of her
     const k = KEYMAP[e.key]; if (k) { keys[k] = true; e.preventDefault(); }
   });

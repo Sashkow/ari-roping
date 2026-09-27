@@ -31,7 +31,9 @@ export function makeRenderer(canvas, world, physics) {
     const n0 = Math.floor((camX - W / S) / world.SPAN);
     for (let k = n0; k <= n0 + Math.ceil((2 * W) / S / world.SPAN) + 1; k++) {
       const sx = X(k * world.SPAN + 10);
-      line(sx, Y(-WIRE_H), sx, Y(1.1), C.muted, Math.max(2, 0.14 * S)); line(sx - 0.5 * S, Y(0.55), sx + 0.5 * S, Y(0.55), C.muted, 1.5);
+      line(sx, Y(-WIRE_H), sx, Y(1.1), C.muted, Math.max(2, 0.14 * S));
+      if (!world.broken.has(k)) line(sx - 0.5 * S, Y(0.55), sx + 0.5 * S, Y(0.55), C.muted, 1.5);   // the cross-span, seen end-on; gone once snapped
+      else { line(sx - 0.5 * S, Y(0.55), sx - 0.12 * S, Y(0.2), C.muted, 1.2); line(sx + 0.5 * S, Y(0.55), sx + 0.15 * S, Y(0.15), C.muted, 1.2); }
     }
     line(0, Y(0.12), W, Y(0.12), C.muted, 1); line(0, Y(0), W, Y(0), C.ink, 1.6);
     const g = world.geom();
@@ -142,6 +144,12 @@ export function makeRenderer(canvas, world, physics) {
       viewH += (wantH - viewH) * 0.08; S = H / viewH;
       const lead = clamp(vx * 0.35, 2, 10); camX += (hx + lead - camX) * 0.15;
       ctx.clearRect(0, 0, W, H); drawWorld(); if (game.arcing()) drawArc(game); drawAri(game, cmd, false);
+      if (game.spark && game.t < game.spark.until) {                  // the cross-span spark: a white core, a blue fringe, a few orange sparks
+        const px = X(game.spark.x), py = Y(game.spark.y), life = (game.spark.until - game.t) / 0.15;
+        ctx.save(); ctx.globalAlpha = Math.max(0, life); ctx.fillStyle = '#FFFFFF'; ctx.shadowColor = '#7FB8FF'; ctx.shadowBlur = 24; ctx.beginPath(); ctx.arc(px, py, Math.max(5, 0.12 * S), 0, 7); ctx.fill();
+        ctx.shadowBlur = 0; ctx.fillStyle = '#FFB066'; for (let i = 0; i < 9; i++) { const a = i * 0.7 + game.spark.until * 13, r = (1 - life) * 0.8 * S + 6; ctx.beginPath(); ctx.arc(px + Math.cos(a) * r, py + Math.sin(a) * r * 0.7, 2, 0, 7); ctx.fill(); }
+        ctx.restore();
+      }
       for (const m of marks) {                                       // a demo's key moments, numbered where they happened and left in place
         const r = Math.max(9, 0.22 * S); ctx.beginPath(); ctx.arc(X(m.x), Y(m.y), r, 0, 7); ctx.fillStyle = m.current ? C.rust : C.panel; ctx.globalAlpha = 0.92; ctx.fill(); ctx.globalAlpha = 1;
         ctx.strokeStyle = C.rust; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = m.current ? C.panel : C.ink; ctx.font = `600 ${Math.round(r * 1.1)}px ui-monospace, monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(m.n), X(m.x), Y(m.y) + 0.5);

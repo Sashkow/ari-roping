@@ -2,6 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { makePhysics, MODE } from '../src/physics.js';
 import { makeFlight } from '../src/flight.js';
 import { makeClock } from '../src/loop.js';
@@ -105,4 +106,22 @@ test('the caps follow the direction of motion: moving backwards, the jaws hold h
   const push = P.tipForces(-20, t0, sin, 5000, t0), hold = P.tipForces(-20, t0, sin, -5000, t0);
   assert.ok(Math.abs(push.fApplied - (P.tips.coil + P.tips.grip)) < 1e-9, 'against the motion (+x when moving -x): coils plus jaws');
   assert.ok(Math.abs(hold.fApplied + P.tips.coil) < 1e-9, 'along the motion: the coils only');
+});
+
+test('the cross-span: off by default; on, she bounces back below the break speed and snaps it above, losing the wire either way', async () => {
+  const { makeGame } = await import('../src/game.js');
+  const lv = JSON.parse(execFileSync(process.env.PYTHON || '/opt/ro/venv/bin/python', ['-c', 'import json,yaml,sys; print(json.dumps(yaml.safe_load(open(sys.argv[1]))))', new URL('../levels/base.yaml', import.meta.url).pathname]));
+  const fly = (v, on) => {
+    const g = makeGame(physics, lv); g.world.setBus(false); g.crossSpanOn = on;
+    g.fl = g.F.release({ th: 0, om: 0, u: v, x: 0 }, 1.0, 0); g.mode = 'air'; g.fl.x = 10 - 1.0; g.fl.y = 0.55; g.fl.vx = v; g.fl.vy = 0; g.fl.L = 0; g.fl.phi = Math.PI;   // head level with the cross-span, 1 m before it
+    const cmd = { accel: 0, poleRate: 0, grip: false, gripPressed: false, spread: false, pitch: 0, slow: false };
+    for (let i = 0; i < 200 && !g.over; i++) g.step(cmd, 0.001);
+    return g;
+  };
+  const off = fly(20, false); assert.equal(off.spanHits, 0, 'off: nothing happens');
+  const slow = fly(20, true); assert.equal(slow.spanHits, 1); assert.ok(slow.fl.vx < 0 && slow.fl.vx > -20 * 0.2, `bounced back at ${slow.fl.vx.toFixed(2)} m/s`); assert.equal(slow.world.broken.size, 0);
+  const fast = fly(50, true); assert.equal(fast.world.broken.size, 1, 'snapped');
+  const expect = Math.sqrt(50 * 50 - fast.crossSpanBreakSpeed ** 2);
+  assert.ok(Math.abs(fast.fl.vx - expect) < 0.5, `kept ${fast.fl.vx.toFixed(1)} of 50 m/s, expected ${expect.toFixed(1)}`);
+  assert.ok(Math.abs(fast.crossSpanBreakSpeed - 42.8) < 0.5, `break speed ${fast.crossSpanBreakSpeed.toFixed(1)} m/s`);
 });

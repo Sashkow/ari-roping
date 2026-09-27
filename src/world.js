@@ -28,5 +28,9 @@ export function makeWorld(physics, level) {
   /** Switch the trolleybus off, or back on first_gap ahead of where her tips are now. */
   function setBus(on, tipsX = 0) { bus.on = on; if (on) bus.shoes = tipsX + level.bus.first_gap; }
 
-  return { bus, geom, hit, setBus, step(dt) { if (bus.on) bus.shoes += bus.v * dt; }, WIRE_H, SPAN, roadY, roofY };
+  // the cross-spans: a steel rope across the street at every support, a little above the contact wires; broken ones stay broken for the run
+  const broken = new Set();
+  const spanX = (k) => k * SPAN + 10;                                   // the supports' positions, as drawn
+
+  return { bus, geom, hit, setBus, step(dt) { if (bus.on) bus.shoes += bus.v * dt; }, WIRE_H, SPAN, roadY, roofY, spanX, broken, distToSegment };
 }

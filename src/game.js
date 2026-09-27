@@ -22,8 +22,39 @@ export function makeGame(physics, level, opts = {}) {
     fl: null, out: null, aP: 0, saturated: false, hardCatch: false, catches: 0, releases: 0,
     startSpeed: level.start.speed, airTime: 0, apex: 0, turns: 0, passedAt: null,
     arcUntil: -1, arcs: 0, events: [], reaching: false, balance: null, assistOn: !!(level.assists && level.assists.balance),
+    crossSpanOn: false, spanHits: 0, spark: null, lastSpanHit: { k: null, t: -9 },
   };
   g.arcing = () => g.t < g.arcUntil;
+
+  // ---- the cross-span (C key, off by default). A steel rope across the street at every support, CS.height above the
+  // contact wires. Her body or poles meeting it: a short spark, and the tips lose the wire. Below the break speed the
+  // rope holds and throws her back at `restitution` of her speed; above it, the rope snaps and she keeps what is left
+  // after paying the energy it took to break it. Mid-span taut-string model: T(x) = T0 + EA*2x^2/L^2, and the energy
+  // stored at deflection x is 2*T0*x^2/L + 2*EA*x^4/L^3; it breaks where T reaches the breaking load.
+  const CS = level.cross_span || null;
+  const CS_M = physics.body.mass + physics.body.poles_mass;
+  const CS_BREAK_J = CS ? (() => { const x2 = ((CS.breaking - CS.pretension) * CS.length * CS.length) / (2 * CS.ea); return (2 * CS.pretension * x2) / CS.length + (2 * CS.ea * x2 * x2) / CS.length ** 3; })() : Infinity;
+  g.crossSpanBreakSpeed = Math.sqrt((2 * CS_BREAK_J) / CS_M);
+  function crossSpan(hx, hy, tail, reach) {
+    if (!CS) return;
+    const [tx, ty] = g.tips(), k0 = Math.round((hx - 10) / world.SPAN);
+    for (const k of [k0 - 1, k0, k0 + 1]) {
+      if (world.broken.has(k)) continue;
+      const sx = world.spanX(k), sy = CS.height;
+      const d = Math.min(world.distToSegment(sx, sy, hx, hy, tx, ty), world.distToSegment(sx, sy, hx, hy, hx + reach * Math.cos(tail), hy + reach * Math.sin(tail)));
+      if (d > CS.radius || (g.lastSpanHit.k === k && g.t - g.lastSpanHit.t < 0.3)) continue;
+      g.lastSpanHit = { k, t: g.t }; g.spanHits++; g.spark = { x: sx, y: sy, until: g.t + CS.spark }; g.events.push('span');
+      if (g.mode === 'wire') { g.fl = F.release(g.st, g.l, g.dl); g.mode = 'air'; g.releases++; g.airTime = 0; g.apex = g.fl.y; g.turns = 0; g.phi0 = g.fl.phi; }
+      g.reaching = false;                                                  // the tips have lost the wire; a new press reaches again
+      const v = Math.hypot(g.fl.vx, g.fl.vy), e = 0.5 * CS_M * v * v;
+      let scale;
+      if (e > CS_BREAK_J) { scale = Math.sqrt((e - CS_BREAK_J) / e); world.broken.add(k); g.events.push('span-break'); }
+      else scale = -CS.restitution;
+      g.fl.vx *= scale; g.fl.vy *= scale; g.fl.L *= 0.3;                   // the blow takes most of her spin
+      g.lastSpanSpeed = { before: v, after: v * Math.abs(scale), broke: e > CS_BREAK_J };
+      return;
+    }
+  }
 
   g.head = () => (g.mode === 'wire' ? [g.st.x + g.l * Math.sin(g.st.th), -g.l * Math.cos(g.st.th)] : [g.fl.x, g.fl.y]);
   g.tips = () => (g.mode === 'wire' ? [g.st.x, 0] : [g.fl.x + g.fl.l * Math.cos(g.fl.phi), g.fl.y + g.fl.l * Math.sin(g.fl.phi)]);
@@ -64,6 +95,7 @@ export function makeGame(physics, level, opts = {}) {
     if (!g.over && cmd.spread && hy0 * hy < 0) { g.arcUntil = g.t + T.arc_seconds; g.arcs++; g.events.push('arc'); }
     const curl = g.mode === 'air' && g.fl ? g.fl.curl || 0 : 0, reach = LB + (F.ringDiameter(g.poleLength()) - LB) * curl;   // the hoop is compact
     if (!g.over) g.over = world.hit([[hx, hy], [hx + reach * Math.cos(tail), hy + reach * Math.sin(tail)]]);
+    if (!g.over && g.crossSpanOn) crossSpan(hx, hy, tail, reach);
     if (!g.over && world.bus.on && g.mode === 'wire' && g.catches > 0 && g.st.x > world.geom().front + 3) {
       g.passedAt ??= g.t;
       if (g.t - g.passedAt > 1.5) { g.over = 'She is past the trolleybus.'; g.won = true; }
